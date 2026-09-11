@@ -99,6 +99,13 @@ accorciamenti già **misurati** (`MAP.md` D33). Punti da tenere a mente:
   né l'uno né l'altra.
 - **Il `K` in ordine di bontà**: misurato per quella combinazione → il tuo
   `k_per_materiale` → stima DIN 6935.
+- **Attenzione all'angolo**: `Bend.angle` è la rotazione da piatto (piatta
+  = 0°), NON l'angolo incluso fra i due lati finiti (quello che leggi su
+  un disegno tecnico). Per una squadra coincidono per coincidenza
+  numerica (180-90=90) — per qualunque altro angolo no: un incluso di
+  120° ha `angle=60`, non 120. Se hai l'incluso dal disegno, non fare il
+  conto a mano: `Bend.from_included(angle_included=120)` (MAP.md D49) —
+  stesso identico `Bend`, zero rischio di sbagliare il segno.
 
 Quattro casi ricorrono sempre, e ogni default del progetto si controlla
 contro tutti e quattro (`MAP.md` D36, dettaglio in `COME_FUNZIONA.md`):
@@ -112,7 +119,11 @@ Script:
 - `04_bend.py` — una squadra a L sviluppata con quattro calibrazioni
   (`default`, `esempio_din_3cave`, `tipo_misurato`, `inside_sum`) fianco a
   fianco, confrontate con lo sviluppo vero del `.bnc`. Guarda per ogni riga
-  cosa ha usato (misurato / stima DIN) e con che cava.
+  cosa ha usato (misurato / stima DIN) e con che cava. Chiude con
+  `Bend.from_included()`: lo stesso angolo incluso (120°) passato in tre
+  modi — a mano giusto, `from_included` giusto, `angle=120` diretto
+  SBAGLIATO — guarda quanto cambia lo sviluppo nell'ultimo caso, in
+  silenzio, senza nessun errore che te lo dica.
 - `05_compare_calibrations.py` — la stessa idea su tutti e 20 i pezzi di
   test reali: sviluppo REALE (TruBend) vs `default` (stima) vs
   `tipo_misurato` (misurato).
@@ -124,7 +135,8 @@ ti serve il PERCHÉ, non prima.
 **Cosa dovresti saper rispondere alla fine**: la formula e da dove vengono
 `r` e `K`; la scaletta del `K` (misurato → per materiale → DIN); perché lo
 sviluppo è sempre "somma lati meno accorciamenti" (`MAP.md` D2)
-indipendentemente dalla forma.
+indipendentemente dalla forma; perché `Bend(angle=120)` e
+`Bend.from_included(120)` NON sono lo stesso pezzo.
 
 ## 3. Il pezzo piegato visto come sezione: `Section`
 

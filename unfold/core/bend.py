@@ -52,7 +52,10 @@ RUOTA rispetto a piatta (piatta = 0°), NON l'angolo incluso fra le due
 flange finite. Per una squadra a 90° coincidono per coincidenza numerica
 (180-90=90), ma per qualsiasi altro angolo no — una piega che lascia le
 flange a un angolo incluso di 120° ha angle=60 (180-120), non 120. Se sul
-disegno hai l'angolo incluso, passa (180 - angolo_incluso).
+disegno hai l'angolo incluso, usa `Bend.from_included(angle_included=...)`
+(MAP.md D49) invece di fare il conto a mano — stesso identico oggetto,
+un costruttore che parla la lingua del disegno invece che quella del
+motore.
 """
 
 from __future__ import annotations
@@ -118,6 +121,32 @@ class Bend:
     radius: Optional[float] = None    # raggio interno (R) — eccezione in BentProfile; via normale per Cone/Cylinder faceted
     k_factor: Optional[float] = None  # solo per Cone/Cylinder faceted (None -> stimato da material/radius/thickness)
     cava: Optional[float] = None      # apertura V matrice per questa piega — override della tabella di calibrazione
+
+    @classmethod
+    def from_included(
+        cls, angle_included: float, radius: Optional[float] = None,
+        k_factor: Optional[float] = None, cava: Optional[float] = None,
+    ) -> "Bend":
+        """
+        Costruisce un `Bend` dall'angolo INCLUSO fra le due flange finite —
+        quello che si legge su un disegno tecnico — invece che dalla
+        rotazione da piatto che vuole `angle` di default (MAP.md D49).
+
+        `angle_included=90` -> `angle=90` (coincidono per una squadra, MA
+        SOLO PER COINCIDENZA NUMERICA: 180-90=90); `angle_included=120`
+        (piega più aperta) -> `angle=60`, non 120 — è esattamente il punto
+        dove chi legge un disegno tecnico (che quota l'incluso) si
+        aspetterebbe 120 e sbaglierebbe passandolo diretto ad `angle`.
+
+        **Raises**: `ValueError` se `angle_included` non è in (0, 180) —
+        stesso intervallo valido di `angle` (sono complementari a 180).
+        """
+        if not (0.0 < angle_included < 180.0):
+            raise ValueError(
+                f"angle_included deve essere maggiore di 0 e minore di 180 "
+                f"gradi, ricevuto {angle_included:g}."
+            )
+        return cls(angle=180.0 - angle_included, radius=radius, k_factor=k_factor, cava=cava)
 
     def bend_allowance(self, thickness: float, k_factor: float) -> float:
         return math.radians(self.angle) * (self.radius + k_factor * thickness)

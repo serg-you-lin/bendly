@@ -110,6 +110,10 @@ Bend(
     k_factor: float | None = None,   # solo per Cone/Cylinder sfaccettati
     cava: float | None = None,       # override della cava di tabella, in BentProfile
 )
+Bend.from_included(
+    angle_included: float,           # angolo fra i due lati finiti — quello del disegno
+    radius: float | None = None, k_factor: float | None = None, cava: float | None = None,
+) -> Bend
 ```
 
 Una piega sola. Dentro `BentProfile` serve solo `angle` (+ `cava` se
@@ -117,6 +121,14 @@ diversa da quella di tabella) — l'accorciamento lo decide la
 `Calibration` del profilo. `radius`/`k_factor` sono invece la via
 normale per le pieghe di un `Cone`/`Cylinder` sfaccettato, che li usano
 direttamente (lì non c'è una cava).
+
+`Bend.from_included()` (MAP.md D49): costruisce lo stesso `Bend` ma
+dall'angolo INCLUSO fra le due flange — quello che si legge su un
+disegno tecnico — invece che dalla rotazione da piatto che vuole `angle`.
+`angle_included=120` → `angle=60` (`180 - angle_included`), non 120: è
+il punto dove passare l'angolo del disegno diretto ad `angle` dà un
+pezzo sbagliato, in silenzio. **Raises**: `ValueError` se
+`angle_included` non è in `(0, 180)`.
 
 | metodo | ritorna | usa |
 |---|---|---|
@@ -133,6 +145,10 @@ scritto a mano).
 from unfold import Bend
 b = Bend(angle=90, radius=4.0, k_factor=0.42)
 allowance = b.bend_allowance(thickness=3.0, k_factor=0.42)
+
+# stesso Bend, ma partendo dall'angolo del disegno (incluso 120°, non 90°)
+b2 = Bend.from_included(120, radius=4.0)
+assert b2.angle == 60.0
 ```
 
 ### `BentProfile`

@@ -3,7 +3,14 @@
 Unico posto per il lavoro aperto. Le decisioni e il perché stanno in
 `MAP.md`; qui non si ripetono, si rimanda con "vedi `MAP.md` D...".
 
-## Fatto stanotte, non ancora in cima al file (MAP.md D45/D46/D47)
+## Fatto stanotte, non ancora in cima al file (MAP.md D45/D46/D47/D49)
+
+- [x] **`Bend.from_included()`** (MAP.md D49) — costruisce un `Bend`
+  dall'angolo INCLUSO del disegno invece che dalla rotazione da piatto
+  che vuole `angle` di default. `Bend(angle=120)` (l'incluso passato
+  diretto, errore comune) e `Bend.from_included(120)` (giusto, dà
+  `angle=60`) sviluppano lunghezze diverse — dimostrato in `04_bend.py`
+  coi numeri a confronto. 6 test nuovi, 192/192.
 
 - [x] **Angoli di piega nell'header DXF** (MAP.md D47) — `to_dxf(annotate=True)`
   e `export_part(include_header=True)` scrivevano solo `flat.meta`,

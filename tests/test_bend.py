@@ -38,6 +38,60 @@ class TestBendFormulas(unittest.TestCase):
         iss = bend.inside_setback(thickness=3)
         self.assertAlmostEqual(css, (oss + iss) / 2.0, places=9)
 
+
+class TestBendFromIncluded(unittest.TestCase):
+    """MAP.md D49 — Bend.from_included(), costruttore dall'angolo incluso
+    (quello che si legge su un disegno tecnico)."""
+
+    def test_ninety_degrees_coincides_by_numeric_coincidence(self):
+        # 180-90=90: coincidono SOLO per la squadra, non in generale (vedi
+        # test sotto) — non e' la regola, e' un caso particolare.
+        b = Bend.from_included(90, radius=3)
+        self.assertAlmostEqual(b.angle, 90.0)
+
+    def test_wider_included_angle_gives_smaller_rotation(self):
+        # Una piega piu' aperta (120 incluso, meno piegata di una squadra)
+        # ruota MENO da piatto, non di piu' — esattamente il punto dove chi
+        # legge un disegno tecnico sbaglierebbe passando 120 diretto a
+        # Bend(angle=...).
+        b = Bend.from_included(120, radius=3)
+        self.assertAlmostEqual(b.angle, 60.0)
+
+    def test_narrower_included_angle_gives_larger_rotation(self):
+        b = Bend.from_included(60, radius=3)
+        self.assertAlmostEqual(b.angle, 120.0)
+
+    def test_matches_manual_conversion(self):
+        for included in (30, 45, 75, 100, 150):
+            b = Bend.from_included(included, radius=2, k_factor=0.4, cava=16)
+            self.assertAlmostEqual(b.angle, 180.0 - included)
+            self.assertEqual(b.radius, 2)
+            self.assertEqual(b.k_factor, 0.4)
+            self.assertEqual(b.cava, 16)
+
+    def test_out_of_range_raises(self):
+        with self.assertRaises(ValueError):
+            Bend.from_included(0)
+        with self.assertRaises(ValueError):
+            Bend.from_included(180)
+        with self.assertRaises(ValueError):
+            Bend.from_included(-10)
+        with self.assertRaises(ValueError):
+            Bend.from_included(200)
+
+    def test_develops_the_same_as_manual_angle_in_a_bentprofile(self):
+        # Giro chiuso: from_included(120) dentro un BentProfile vero deve
+        # sviluppare esattamente come Bend(angle=60) a mano.
+        via_included = BentProfile(
+            flanges=[50, 50], bends=[Bend.from_included(120, radius=3)],
+            thickness=2, width=100, calibration="default",
+        ).develop()
+        via_manual = BentProfile(
+            flanges=[50, 50], bends=[Bend(angle=60, radius=3)],
+            thickness=2, width=100, calibration="default",
+        ).develop()
+        self.assertAlmostEqual(via_included.meta["total_length"], via_manual.meta["total_length"])
+
     def test_estimate_k_factor_standard_ratio_uses_material_table(self):
         # R/T ~ 1 (standard) -> valore di tabella per il materiale
         self.assertAlmostEqual(estimate_k_factor("mild_steel", radius=2, thickness=2), 0.44)

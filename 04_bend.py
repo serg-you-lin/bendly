@@ -58,8 +58,12 @@ partire dalle quote ESTERNE del disegno.
 NOTA SULL'ANGOLO
 ----------------
 `angle=90` e' l'angolo di cui la lamiera RUOTA partendo da piatta, non
-l'angolo fra i due lati finiti. Per 90 gradi sono lo stesso numero. Per
-altri angoli: angle = 180 - (angolo fra i lati).
+l'angolo fra i due lati finiti (l'angolo INCLUSO, quello che si legge sul
+disegno). Per 90 gradi sono lo stesso numero, per coincidenza - per
+qualunque altro angolo no: una piega con angolo incluso 120 ha angle=60
+(180-120), non 120. Se hai l'incluso dal disegno, non fare il conto a
+mano: `Bend.from_included(angle_included=120)` (MAP.md D49) - stesso
+identico Bend, zero rischio di sbagliare il segno del conto.
 """
 
 from pathlib import Path
@@ -109,6 +113,29 @@ def main() -> None:
     print()
     for nome in ("default", "esempio_din_3cave", "tipo_misurato", "inside_sum"):
         stampa(nome, sviluppo(nome))
+    print()
+
+    # --- Bend.from_included() (MAP.md D49) — l'angolo che leggi sul disegno,
+    # non quello di rotazione. Una piega con angolo INCLUSO 120 (una piega
+    # "aperta", meno di una squadra) ha angle=60 (180-120) — se qualcuno
+    # legge "120" sul disegno e lo passa diretto a Bend(angle=...), il
+    # pezzo esce sbagliato, in silenzio. Confronto sui tre modi:
+    print("Angolo incluso 120° (piega aperta, meno di una squadra) — tre modi di passarlo:")
+    corretto_a_mano = BentProfile(
+        flanges=[80.0, 80.0], bends=[Bend(angle=60)],   # 180-120 fatto a mano, giusto
+        thickness=3, width=50, calibration="default",
+    ).develop()
+    corretto_from_included = BentProfile(
+        flanges=[80.0, 80.0], bends=[Bend.from_included(120)],   # stesso Bend, zero conto a mano
+        thickness=3, width=50, calibration="default",
+    ).develop()
+    sbagliato = BentProfile(
+        flanges=[80.0, 80.0], bends=[Bend(angle=120)],   # errore comune: 120 passato diretto
+        thickness=3, width=50, calibration="default",
+    ).develop()
+    print(f"  Bend(angle=60)                 -> sviluppo {corretto_a_mano.meta['total_length']:.2f} mm  (giusto, 180-120 a mano)")
+    print(f"  Bend.from_included(120)        -> sviluppo {corretto_from_included.meta['total_length']:.2f} mm  (giusto, stesso numero, zero conto a mano)")
+    print(f"  Bend(angle=120)  <- SBAGLIATO   -> sviluppo {sbagliato.meta['total_length']:.2f} mm  (120 passato diretto: pezzo sbagliato, in silenzio)")
     print()
 
     print("COSA SI VEDE")

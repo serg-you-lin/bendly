@@ -1013,6 +1013,32 @@ the real cut + section + header (verified: `OuterContour`+`Bending` from
 the real development, `SectionView`+`Quotes`+`Notes` layered on top,
 read back from the generated DXF). 186/186 unaffected.
 
+---
+
+### D49 — `Bend.from_included()`: construct from the drawing's included angle (11 Sep 2026)
+
+From an outside review Federico asked for my read on (`Parere_di_DeepSeek.md`,
+gitignored — a personal note, not project documentation): `Bend.angle`
+being the rotation-from-flat (not the included angle a technical drawing
+quotes) is a real "silent bug" trap — correct only by numeric coincidence
+at 90°, wrong everywhere else, and nothing stopped someone from passing
+the drawing's angle straight into `angle`. Agreed with the suggestion,
+implemented it.
+
+`Bend.from_included(angle_included, radius=None, k_factor=None,
+cava=None) -> Bend` — same object, built from `angle = 180 -
+angle_included` instead of asking for that arithmetic by hand.
+**Raises** `ValueError` if `angle_included` is not in `(0, 180)` (the
+same valid range as `angle`, checked at the friendlier boundary instead
+of letting a bad value surface later as a confusing `angle` error).
+Documented in the module's own angle-convention warning (top of
+`core/bend.py`), `docs/API.md`, `TUTORIAL.md` (tappa 2), and demonstrated
+in `04_bend.py` with the exact failure mode made visible: the same 120°
+included angle developed three ways — by hand (`Bend(angle=60)`),
+`from_included(120)`, and the common mistake `Bend(angle=120)` — the
+first two match, the third gives a measurably different, silently wrong,
+development length. 6 new tests, **192/192 green**.
+
 ## Closed questions (history)
 
 - *Outer, interior, or centerline quotes?* → core at centerline (D1);

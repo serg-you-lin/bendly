@@ -1,0 +1,18 @@
+{
+  "nome": "esempio: 3 cave, nessun dato misurato",
+  "tipo_cliente": "cava_propria",
+  "descrizione": "Modello di calibrazione per un cliente che ha in casa 3 cave (V8, V20, V80) e sa quale usa per ogni spessore, ma non ha ancora misurato niente e non conosce il suo K per materiale. Con solo la tabella cave: il raggio viene dalla cava (r ~ V/6) e il K lo stima DIN 6935. Aggiungere 'k_per_materiale' o 'misurati' man mano che si hanno i dati.",
+  "cava_per_spessore": {
+    "1": 8,
+    "1.5": 8,
+    "2": 8,
+    "3": 20,
+    "4": 20,
+    "5": 20,
+    "6": 20,
+    "8": 80,
+    "10": 80,
+    "12": 80,
+    "15": 80
+  }
+}

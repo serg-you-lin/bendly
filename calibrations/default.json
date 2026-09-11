@@ -1,0 +1,23 @@
+{
+  "nome": "default",
+  "tipo_cliente": "zero_config",
+  "descrizione": "Calibrazione di partenza, usata se non ne indichi una. Non conosce la cava di nessuna officina: gli spessori qui sotto sono solo un elenco di taglie comuni, tutti a 'null' apposta. Dove la cava non e' nota, il raggio e' una costante fissa dichiarata (1 mm, MAP.md D36) e il fattore K lo stima DIN 6935 dal rapporto raggio/spessore (cieco al materiale, tarato sull'acciaio). RIEMPI i valori con le cave vere della tua officina quando li hai (bastano quelli, niente CAM richiesto) per un raggio vero invece del fisso; aggiungi 'k_per_materiale' o 'misurati' quando li hai. Vedi COME_FUNZIONA.md.",
+  "cava_per_spessore": {
+    "0.5": null,
+    "0.8": null,
+    "1": null,
+    "1.2": null,
+    "1.5": null,
+    "2": null,
+    "2.5": null,
+    "3": null,
+    "4": null,
+    "5": null,
+    "6": null,
+    "8": null,
+    "10": null,
+    "12": null,
+    "15": null,
+    "20": null
+  }
+}

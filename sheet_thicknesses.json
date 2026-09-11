@@ -1,0 +1,6 @@
+{
+  "_note": "Sheet-metal thicknesses that actually exist (mm). Used by the recognition pattern: if the thickness deduced from a drawing is not in this list (within tolerance) then that view is NOT bent sheet metal. Starting list (steel, common commercial ranges) - Federico replaces it with officina 1's real stock.",
+  "material": "steel",
+  "thicknesses_mm": [0.5, 0.6, 0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 25.0],
+  "tolerance_mm": 0.2
+}

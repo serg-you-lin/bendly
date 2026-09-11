@@ -1,0 +1,6 @@
+{
+  "nome": "inside_sum",
+  "tipo_cliente": "somma_interna",
+  "descrizione": "Scorciatoia della vecchia scuola: si sommano le quote INTERNE del pezzo, nessuna correzione per il raggio (BD = s*tan(angolo/2) a mezzeria). Sconsigliata, ma serve a chi ha sempre lavorato con le sue quote interne e vuole che i numeri tornino a quelli. Ignora cava, raggio, K.",
+  "metodo": "inside_sum"
+}

@@ -1,0 +1,58 @@
+.venv/
+venv/
+env/
+
+build/
+dist/
+*.egg-info/
+
+__pycache__/
+*.py[cod]
+*.pyd
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+htmlcov/
+.coverage
+.coverage.*
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+*.dxf
+output/
+
+# --- dati di officina / cliente: NON vanno su GitHub ---
+# le calibrazioni misurate e i file CAM reali sono roba del singolo cliente.
+# Sul repo resta solo calibrations/default.json (la norma).
+data_4_cloude/
+calibrations/officina_*.json
+calibrations/cliente_*.json
+calibrations/tipo_misurato.json
+# ^ rinominato da officina_1.json (MAP.md D40) - stessi dati misurati
+# reali, il pattern *_officina/*_cliente sopra non lo becca più col
+# nuovo nome. Solo default.json / esempio_din_3cave.json / inside_sum.json
+# restano tracciati: sono modelli generici, non dati di un cliente vero.
+*.bnc
+*.fx
+*.STEP
+*.step
+*.SLDPRT
+
+.env
+.env.*
+!.env.example
+
+*.log
+*.tmp
+*.bak
+*.orig
+*~

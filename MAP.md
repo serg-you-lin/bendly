@@ -57,9 +57,13 @@ piano/todo/map:
 
 ## Stato corrente (agg. 11 set 2026)
 
-- **Repo git:** non ancora inizializzato. `.gitignore` già scritto (esclude
-  i dati cliente). Da valutare come pulizia futura.
-- **Test:** 159 passati + 132 subtest, **tutti verdi** (`python -m pytest -q`,
+- **Repo git:** inizializzato l'11 set 2026, primo commit fatto (era in
+  giro non tracciato fino ad ora). Trovato e chiuso PRIMA del commit un
+  buco reale nel `.gitignore`: il pattern `calibrations/officina_*.json`
+  non beccava più `tipo_misurato.json` dopo il rename D40 — dati veri
+  misurati che stavano per finire tracciati. Nessun repo GitHub remoto
+  ancora — decisione di Federico, non ancora presa.
+- **Test:** 173 passati + 132 subtest, **tutti verdi** (`python -m pytest -q`,
   D41 — chiuso il disallineamento con `forge`).
 - **Documentazione:** `README.md` (EN) + `README_IT.md` (IT),
   `COME_FUNZIONA.md`, `TUTORIAL.md` allineati a D36 (raggio fisso

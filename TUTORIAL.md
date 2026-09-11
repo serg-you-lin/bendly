@@ -44,17 +44,21 @@ in testa:
 - `03_margin_orientation.py` — i due parametri di layout: `orientation`
   (quale asse è il lato lungo del foglio) e `margin` (saldatura tolta in
   parti uguali).
-- `11_split_and_partial.py` — due cose diverse, non confonderle:
-  `split`/`sector_angle` (MAP.md D46) per dividere il pezzo in N parti
-  UGUALI saldate insieme (`split=2` = due metà, liscio o **sfaccettato** —
-  prima di stanotte lo sfaccettato parziale era esplicitamente "non
-  deciso"); un `sector_angle` libero (MAP.md D42) per una "mezzaluna" —
-  una sella calandrata tagliata a un angolo scelto, non una frazione del
-  giro. `margin` (la giunzione a saldatura) funziona identico sui pezzi
-  interi e su quelli divisi — stesso parametro, zero cose nuove da
-  imparare lì. Lo script chiude mostrando che una metà sfaccettata è, in
-  sezione, la stessa cosa di un profilo a N flange — la si vede quotata
-  con `Section`, esattamente come una L (tappa 5 più avanti).
+- `11_split_pieces.py` — `split` (MAP.md D46): dividere il pezzo in N
+  parti UGUALI saldate insieme (`split=2` = due metà, liscio o
+  **sfaccettato** — prima di stanotte lo sfaccettato parziale era
+  esplicitamente "non deciso"). `margin` (la giunzione a saldatura)
+  funziona identico sui pezzi interi e su quelli divisi — stesso
+  parametro, zero cose nuove da imparare lì. Lo sfaccettato esportato
+  CON e SENZA la vista in sezione: una metà sfaccettata è, in sezione, la
+  stessa cosa di un profilo a N flange — la si vede quotata con
+  `Section`, esattamente come una L (tappa 5 più avanti). Non confondere
+  con `12_selle.py`: qui `split` divide in parti UGUALI, lì `sector_angle`
+  è un angolo scelto a mano, non una frazione del giro.
+- `12_selle.py` — `sector_angle` libero (MAP.md D42): una "mezzaluna", una
+  sella calandrata tagliata a un angolo scelto — non `split`. Liscia
+  (nessuna vista in sezione: è una curva continua, non una catena di
+  flange dritte) e sfaccettata (con/senza vista in sezione, come sopra).
 
 Per lo sfaccettato di `Cone`/`Cylinder` (liscio o diviso): il raggio e il
 `K` di ogni giunto vengono dalla **calibrazione** dell'officina (MAP.md

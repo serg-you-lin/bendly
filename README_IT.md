@@ -1,4 +1,8 @@
-# unfold
+# bendly
+
+*(Il pacchetto Python che si installa/importa resta `unfold` — `pip install -e .`,
+`from unfold import ...` — non ancora rinominato: solo il progetto/repo si chiama
+"bendly".)*
 
 > **Stato: alpha.** Le Fasi 1–3 sono fatte (forme avvolte, profili piegati a
 > pressopiega, il layer umano con quote esterno-esterno e la vista in sezione

@@ -1,4 +1,7 @@
-# unfold
+# bendly
+
+*(Package/import name on PyPI-style install is still `unfold` — `pip install -e .`,
+`from unfold import ...` — not renamed yet, only the project/repo is "bendly".)*
 
 > **Status: alpha.** Phases 1–3 are done (wrapped shapes, press-brake bent
 > profiles, the human layer with external-to-external quotes and the dimensioned

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "unfold"
-version = "0.1.0"
+version = "0.1.1"
 description = "Motore matematico puro per sviluppi piani di forme sviluppabili (cono, cilindro, profili piegati, ...). Zero dipendenze per il calcolo e per la lettura di un disegno; l'export DXF passa da forge (opzionale, installato a parte) — vedi MAP.md D43."
 readme = "README.md"
 requires-python = ">=3.10"

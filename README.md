@@ -3,8 +3,12 @@
 > **Status: alpha.** Phases 1–3 are done (wrapped shapes, press-brake bent
 > profiles, the human layer with external-to-external quotes and the dimensioned
 > section view). Phases 4–5 (boxes / multi-axis bends, bend info inside TruBend
-> DXFs) are parked. The API in `unfold.__all__` is stable; `docs/API.md` and
-> `docs/ARCHITECTURE.md` are not written yet (see `MAP.md` D16).
+> DXFs) are parked. The API in `unfold.__all__` is stable; see `docs/API.md`
+> and `docs/ARCHITECTURE.md`.
+>
+> **All rights reserved — no license is granted.** This repo is public so it
+> can be read and evaluated; it is not open source. Want to use it? Ask —
+> open an issue or reach out.
 
 Pure math engine for flat patterns of sheet-metal parts: **wrapped shapes**
 (cone, cylinder) and **press-brake bent profiles** (an L bracket, a U channel, a

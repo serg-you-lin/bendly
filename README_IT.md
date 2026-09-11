@@ -3,9 +3,12 @@
 > **Stato: alpha.** Le Fasi 1–3 sono fatte (forme avvolte, profili piegati a
 > pressopiega, il layer umano con quote esterno-esterno e la vista in sezione
 > quotata). Le Fasi 4–5 (scatole / pieghe su più assi, info di piega dentro i
-> DXF TruBend) sono parcheggiate. L'API in `unfold.__all__` è stabile;
-> `docs/API.md` e `docs/ARCHITECTURE.md` non sono ancora scritti (vedi
-> `MAP.md` D16).
+> DXF TruBend) sono parcheggiate. L'API in `unfold.__all__` è stabile; vedi
+> `docs/API.md` e `docs/ARCHITECTURE.md`.
+>
+> **Tutti i diritti riservati — nessuna licenza concessa.** Questo repo è
+> pubblico per essere letto e valutato, non è open source. Vuoi usarlo?
+> Chiedi — apri una issue o scrivimi.
 
 Motore matematico puro per gli sviluppi piani di pezzi in lamiera: **forme
 avvolte** (cono, cilindro) e **profili piegati a pressopiega** (una squadra a L,

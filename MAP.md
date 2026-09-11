@@ -980,6 +980,39 @@ angles (two distinct lines) — read back from the actual generated DXF
 text entities, not just printed. 184/184 unaffected (no test asserted on
 the old header text).
 
+---
+
+### D48 — real trap found: `export_part()` on a facet-derived `Section` silently gives the wrong cut length
+
+Federico noticed the sella section-view DXF from script 11 had no
+development in it, and asked since when a "DXF without a development"
+was a thing — it never was: `Section.to_dxf()` has always drawn the
+folded section alone (same as `09_section_view.py`), the script had just
+called it directly instead of stacking it with the real cut.
+
+Checking how to stack them properly (development + section + header, the
+`export_part()` picture) surfaced a real correctness trap, caught before
+it shipped as advice: `export_part()`/`Section.to_bent_profile().develop()`
+recomputes the development using `BentProfile`'s DEDUCTION formula
+(subtract accorciamento from an apex-to-apex flange) — not the ADDITION
+formula the faceted `Cone`/`Cylinder` math actually uses (`bend_allowance`
+summed between exact facet chords, D45's whole reason for
+`resolve_facet_bend()` bypassing `deduction_detail()`'s `.value`).
+Verified numerically on the faceted sella: feeding the same chord/angle
+data through `Section.to_bent_profile("default").develop()` gives
+`total_length` off by ~2mm from the real one — not rounding, a different
+formula for a different geometry, silently wrong if used.
+
+Fix: don't rebuild the development at all for a faceted piece — combine
+the ALREADY-CORRECT `flat` (from `Cylinder`/`Cone.develop()`) with the
+`Section`'s folded view via `write_part_dxf()` directly (the layer
+underneath `export_part()`, `unfold.io.dxf.write_part_dxf` — not
+re-exported in `unfold.__all__`, imported explicitly where needed).
+Script 11 rewritten to do this; both bonus files now correctly stack
+the real cut + section + header (verified: `OuterContour`+`Bending` from
+the real development, `SectionView`+`Quotes`+`Notes` layered on top,
+read back from the generated DXF). 186/186 unaffected.
+
 ## Closed questions (history)
 
 - *Outer, interior, or centerline quotes?* → core at centerline (D1);

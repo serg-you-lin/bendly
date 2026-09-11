@@ -26,12 +26,25 @@ può quindi "vedere in sezione", quotata, esattamente come si fa per una L
 (09_section_view.py) — costruendo una `Section` dai numeri che il cilindro
 stesso ha già calcolato (corda, angolo di piega, raggio VERO usato).
 
+Il file finale impila TAGLIO VERO + sezione + header, come fa
+`export_part()` per una L — ma non passa da `export_part()`: quello
+ricalcola lo sviluppo con `Section.to_bent_profile().develop()`, che usa
+la formula a DEDUZIONE di `BentProfile` (accorciamento sottratto da una
+flangia apice-apice) — non la stessa formula ad ADDIZIONE delle faccette
+(bend allowance sommato fra corde, MAP.md D45). Provato: i due total
+length NON coincidono (differenza reale, ~2mm su questo pezzo, non un
+arrotondamento) — sono due geometrie diverse che condividono solo lo
+stesso K/raggio, non la stessa formula. Il taglio giusto resta quello che
+`Cylinder.develop()` ha già calcolato; `write_part_dxf()` (lo strato sotto
+`export_part()`) lo impila con la sezione senza doverlo ricalcolare.
+
 Richiede forge installato a fianco: pip install -e ../dxf-forge
 """
 
 from pathlib import Path
 
 from unfold import Cone, Cylinder
+from unfold.io.dxf import write_part_dxf
 from unfold.model.section import Section
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
@@ -147,13 +160,23 @@ def main() -> None:
         )
 
     half_as_section = faceted_piece_as_section(half_faceted, 3.0, "half_cylinder_12")
-    half_as_section.to_dxf(OUTPUT_DIR / "11_half_faceted_section_view.dxf")
-
     sella_as_section = faceted_piece_as_section(sella_faceted, 3.0, "sella_R300_60_faceted")
-    sella_as_section.to_dxf(OUTPUT_DIR / "11_mezzaluna_sfaccettata_section_view.dxf")
 
-    for label, sec in (("metà cilindro", half_as_section), ("mezzaluna", sella_as_section)):
-        print(f"\n--- Bonus: la {label} sfaccettata vista in sezione, come per una L ---")
+    # Un file solo per pezzo: TAGLIO VERO (quello che Cylinder ha già
+    # calcolato) + sezione + header, impilati — write_part_dxf() invece di
+    # export_part() apposta (vedi docstring in cima: export_part
+    # ricalcolerebbe lo sviluppo con la formula sbagliata per un pezzo
+    # sfaccettato).
+    for label, flat, sec, fname in (
+        ("metà cilindro", half_faceted, half_as_section, "11_half_faceted_full.dxf"),
+        ("mezzaluna", sella_faceted, sella_as_section, "11_mezzaluna_sfaccettata_full.dxf"),
+    ):
+        write_part_dxf(
+            flat, OUTPUT_DIR / fname,
+            section_flat=sec.section(), quotes=sec.flange_quotes(), thickness=3.0,
+            include_header=True,
+        )
+        print(f"\n--- Bonus: la {label} sfaccettata — taglio + sezione + header in un file solo ---")
         n = len(sec.segments)
         print(f"  {n} flange da {sec.segments[0]:.3f}mm, {n - 1} pieghe da "
               f"{sec.angles[0]:.1f}° (naming scheme), raggio {sec.inner_radius:.3f}mm")

@@ -56,3 +56,10 @@ calibrations/tipo_misurato.json
 *.bak
 *.orig
 *~
+
+# --- appunti/pareri personali, non documentazione del progetto ---
+Parere_di_DeepSeek.md
+
+# --- scratch di esplorazione forge, non di unfold (niente unfold importato) ---
+demo_custom_role.py
+demo_custom_role.dxf

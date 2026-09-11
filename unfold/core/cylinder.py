@@ -37,10 +37,24 @@ identico sviluppo, solo con un angolo minore di 360. Lo sviluppo liscio
 diventa `width = raggio_medio × sector_angle (radianti)`, che con
 sector_angle=360 torna esattamente `π × diametro_medio` (giro intero) —
 stessa formula del settore anulare di `Cone`, qui applicata al raggio
-singolo del cilindro. Non ancora supportato insieme a faceted=True: un
-prisma sfaccettato parziale è un caso diverso (l'ultima faccetta è
-tagliata a metà), non ancora deciso — sector_angle != 360 con faceted=True
-solleva errore invece di dare un risultato silenziosamente sbagliato.
+singolo del cilindro.
+
+`split` (MAP.md D46): scorciatoia per il caso "il tubo è troppo
+grande/lungo per farlo da un pezzo solo, lo facciamo in N pezzi uguali
+saldati insieme" — `split=2` sviluppa 1/2 del giro (`sector_angle=180`
+equivalente, ma senza dover calcolare l'angolo a mano). Alternativo a
+`sector_angle` esplicito, non combinabile (uno dei due, mai entrambi
+diversi dal default). `margin` continua a valere com'è, tolto ai due
+bordi di QUESTO pezzo — è la giunzione a saldatura fra i pezzi, non
+cambia parametro passando da un pezzo intero a un pezzo diviso.
+
+Sfaccettato + settore parziale (MAP.md D46): supportato quando
+`sector_angle`/`split` tagliano esattamente su un confine di faccetta —
+`n_facets` resta il conteggio del prisma INTERO (360°), la porzione
+sviluppata ne prende una frazione proporzionale (`n_facets × angolo/360`,
+deve tornare un intero: es. `n_facets=8, split=2` -> 4 faccette in
+questo pezzo). Un taglio che cade a metà di una faccetta solleva errore
+esplicito invece di un risultato silenziosamente sbagliato.
 
 Raggio e K delle pieghe sfaccettate (MAP.md D45): dalla `calibration`
 dell'officina, stessa scaletta di `BentProfile` (misurato -> K per
@@ -68,6 +82,7 @@ class Cylinder:
     thickness: float = 0.0
     margin: float = 0.0
     sector_angle: float = 360.0
+    split: int = 1                              # scorciatoia per sector_angle=360/split (MAP.md D46)
     orientation: str = "vertical"
     faceted: bool = False
     n_facets: int = 8
@@ -88,14 +103,19 @@ class Cylinder:
             raise ValueError("margin non può essere negativo.")
         if not (0.0 < self.sector_angle <= 360.0):
             raise ValueError("sector_angle deve essere maggiore di zero e al massimo 360.")
+        if self.split < 1:
+            raise ValueError("split deve essere almeno 1.")
+        if self.split != 1 and self.sector_angle != 360.0:
+            raise ValueError(
+                "sector_angle e split sono due modi di dire la stessa cosa — "
+                "usane solo uno (sector_angle esplicito, o split per una "
+                "frazione uguale del giro)."
+            )
         _check_orientation(self.orientation)
         if self.faceted and self.n_facets < 3:
             raise ValueError("n_facets deve essere almeno 3.")
-        if self.faceted and self.sector_angle != 360.0:
-            raise ValueError(
-                "sector_angle != 360 non è ancora supportato con faceted=True "
-                "(prisma parziale, caso non ancora deciso)."
-            )
+
+        effective_angle = self.sector_angle if self.split == 1 else 360.0 / self.split
 
         diameter_mean = self.diameter - self.thickness
         if diameter_mean <= 0:
@@ -103,9 +123,11 @@ class Cylinder:
 
         bends = []
         if self.faceted:
-            width, bend_lines, extra_meta, bends = self._faceted_width_and_bends(diameter_mean / 2.0)
+            width, bend_lines, extra_meta, bends = self._faceted_width_and_bends(
+                diameter_mean / 2.0, effective_angle,
+            )
         else:
-            width = math.radians(self.sector_angle) * (diameter_mean / 2.0)
+            width = math.radians(effective_angle) * (diameter_mean / 2.0)
             bend_lines, extra_meta = [], {}
 
         half_margin = self.margin / 2.0
@@ -154,7 +176,8 @@ class Cylinder:
             "height": self.height,
             "thickness": self.thickness,
             "margin": self.margin,
-            "sector_angle_deg": self.sector_angle,
+            "sector_angle_deg": effective_angle,
+            "split": self.split,
             "diameter_mean": diameter_mean,
             "width": width,
             "width_cut": cut_width,
@@ -168,10 +191,26 @@ class Cylinder:
 
     # ------------------------------------------------------------------
 
-    def _faceted_width_and_bends(self, r_mean: float):
-        n = self.n_facets
-        exterior_angle = 360.0 / n
-        chord = 2.0 * r_mean * math.sin(math.pi / n)
+    def _faceted_width_and_bends(self, r_mean: float, effective_angle: float):
+        n_full = self.n_facets
+        exterior_angle = 360.0 / n_full
+        chord = 2.0 * r_mean * math.sin(math.pi / n_full)
+
+        # Quante faccette di QUESTO pezzo (MAP.md D46) — n_full resta il
+        # conteggio del prisma INTERO (360°), qui se ne prende una
+        # frazione proporzionale. Corda/angolo di piega non cambiano: sono
+        # proprietà del poligono intero, identiche per ogni faccetta.
+        if effective_angle == 360.0:
+            n = n_full
+        else:
+            raw_n = n_full * effective_angle / 360.0
+            n = round(raw_n)
+            if n < 1 or abs(raw_n - n) > 1e-6:
+                raise ValueError(
+                    f"sector_angle/split (effettivo {effective_angle:g}°) non taglia "
+                    f"n_facets={n_full} su un confine di faccetta esatto "
+                    f"({raw_n:g} faccette) — scegli una combinazione che torni intera."
+                )
 
         if self.facet_bend_radius is not None and self.facet_bend_radius <= 0:
             raise ValueError("facet_bend_radius deve essere maggiore di zero.")
@@ -183,7 +222,7 @@ class Cylinder:
         bend_allowance = bend_result.bend_allowance
         # Tutte le N-1 faccette sono identiche (poligono regolare) - un
         # solo BendResult calcolato, ripetuto.
-        bends = [bend_result for _ in range(n - 1)]
+        bends = [bend_result for _ in range(max(n - 1, 0))]
 
         cum = 0.0
         bend_positions = []
@@ -195,6 +234,7 @@ class Cylinder:
 
         extra_meta = {
             "n_facets": n,
+            "n_facets_full": n_full,
             "facet_width": chord,
             "facet_bend_radius": bend_radius,
             "facet_k_factor": k,

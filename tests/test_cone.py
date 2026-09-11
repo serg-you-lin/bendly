@@ -201,5 +201,71 @@ class TestConeFaceted(unittest.TestCase):
         self.assertNotIn("n_facets", flat.meta)
 
 
+class TestConeSplit(unittest.TestCase):
+    """MAP.md D46 — sviluppo parziale (sector_angle/split), tipicamente
+    per farlo in più pezzi saldati insieme."""
+
+    def _full_angle(self):
+        return Cone(top_diameter=200, bottom_diameter=150, height=100).develop().meta["full_angle_deg"]
+
+    def test_split_in_half_matches_explicit_sector_angle(self):
+        full_angle = self._full_angle()
+        via_split = Cone(top_diameter=200, bottom_diameter=150, height=100, split=2).develop()
+        via_angle = Cone(
+            top_diameter=200, bottom_diameter=150, height=100, sector_angle=full_angle / 2.0,
+        ).develop()
+        self.assertAlmostEqual(via_split.meta["sector_angle_deg"], via_angle.meta["sector_angle_deg"])
+
+    def test_sector_angle_above_natural_raises(self):
+        full_angle = self._full_angle()
+        with self.assertRaises(ValueError):
+            Cone(
+                top_diameter=200, bottom_diameter=150, height=100, sector_angle=full_angle + 1.0,
+            ).develop()
+
+    def test_split_and_sector_angle_together_raises(self):
+        with self.assertRaises(ValueError):
+            Cone(
+                top_diameter=200, bottom_diameter=150, height=100,
+                sector_angle=10.0, split=2,
+            ).develop()
+
+    def test_faceted_split_in_half_gives_half_the_facets(self):
+        full = Cone(
+            top_diameter=200, bottom_diameter=150, height=100, thickness=2,
+            faceted=True, n_facets=8,
+        ).develop()
+        half = Cone(
+            top_diameter=200, bottom_diameter=150, height=100, thickness=2,
+            faceted=True, n_facets=8, split=2,
+        ).develop()
+        self.assertEqual(half.meta["n_facets"], 4)
+        self.assertEqual(half.meta["n_facets_full"], 8)
+        self.assertEqual(len(half.bends), 3)
+        # Corda/angolo di piega sono proprietà del poligono INTERO,
+        # identiche fra il pezzo intero e la metà.
+        self.assertAlmostEqual(half.meta["outer_facet_width"], full.meta["outer_facet_width"])
+        self.assertAlmostEqual(half.meta["facet_bend_radius"], full.meta["facet_bend_radius"])
+
+    def test_margin_on_faceted_half_still_works(self):
+        # Stesso parametro margin che accorcia il cono intero (MAP.md D46).
+        no_margin = Cone(
+            top_diameter=200, bottom_diameter=150, height=100, thickness=2,
+            faceted=True, n_facets=8, split=2,
+        ).develop()
+        with_margin = Cone(
+            top_diameter=200, bottom_diameter=150, height=100, thickness=2,
+            faceted=True, n_facets=8, split=2, margin=2,
+        ).develop()
+        self.assertEqual(len(with_margin.entities), len(no_margin.entities))
+
+    def test_split_not_on_a_facet_boundary_raises(self):
+        with self.assertRaises(ValueError):
+            Cone(
+                top_diameter=200, bottom_diameter=150, height=100, thickness=2,
+                faceted=True, n_facets=8, split=3,
+            ).develop()
+
+
 if __name__ == "__main__":
     unittest.main()

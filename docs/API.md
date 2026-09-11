@@ -20,6 +20,8 @@ dello sviluppo (`model`) → pipeline di comodo (`human_layer`).
 Cone(
     top_diameter: float, bottom_diameter: float, height: float,
     thickness: float = 0.0, margin: float = 0.0,
+    sector_angle: float | None = None,       # tetto sullo sviluppo naturale (MAP.md D46)
+    split: int = 1,                          # scorciatoia: sector_angle = full_angle/split
     orientation: str = "vertical",           # "vertical" | "horizontal"
     faceted: bool = False, n_facets: int = 8,
     facet_bend_radius: float | None = None,  # esplicito -> batte la calibration
@@ -35,6 +37,11 @@ sviluppato — a calandra (`faceted=False`, un arco vero) o a spicchi
 piani uniti da pieghe (`faceted=True`). Sfaccettato: raggio e K di ogni
 giunto vengono dalla `calibration` dell'officina — stessa scaletta di
 `BentProfile` (MAP.md D45), un giunto sfaccettato è una piega vera.
+`sector_angle`/`split` (MAP.md D46, mai insieme): sviluppa solo una
+porzione dello sviluppo naturale — tipicamente per farlo in pezzi
+uguali saldati (`split=2` = due metà). A differenza di `Cylinder`, qui
+"pieno" non è 360 ma un valore fissato dalla geometria del cono
+(`meta["full_angle_deg"]`).
 
 - **`.develop() -> FlatGeometry`** — calcola e ritorna lo sviluppo, con
   `flat.bends: list[BendResult]` popolato se `faceted=True` (una per
@@ -63,6 +70,7 @@ Cylinder(
     diameter: float, height: float,
     thickness: float = 0.0, margin: float = 0.0,
     sector_angle: float = 360.0,             # < 360 = settore parziale (sella calandrata)
+    split: int = 1,                          # scorciatoia: sector_angle = 360/split (MAP.md D46)
     orientation: str = "vertical",
     faceted: bool = False, n_facets: int = 8,
     facet_bend_radius: float | None = None,  # esplicito -> batte la calibration
@@ -75,9 +83,10 @@ Cylinder(
 
 Cilindro (tubo) sviluppato come rettangolo — a calandra o a prisma
 sfaccettato. `sector_angle` (MAP.md D42): meno di 360° sviluppa solo un
-settore del giro (es. una sella calandrata), non ancora combinabile con
-`faceted=True`. Sfaccettato: raggio e K dalla `calibration` dell'officina
-(MAP.md D45), stesso principio di `Cone`.
+settore del giro (es. una sella calandrata, o — con `faceted=True`,
+supportato da MAP.md D46 — una metà da saldare, `split=2`). Sfaccettato:
+raggio e K dalla `calibration` dell'officina (MAP.md D45), stesso
+principio di `Cone`.
 
 - **`.develop() -> FlatGeometry`**, con `flat.bends` popolato se
   `faceted=True` (vedi `Cone`). **Mutates**: niente. **Raises**:

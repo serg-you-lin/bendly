@@ -3,8 +3,21 @@
 Unico posto per il lavoro aperto. Le decisioni e il perché stanno in
 `MAP.md`; qui non si ripetono, si rimanda con "vedi `MAP.md` D...".
 
-## Fatto stanotte, non ancora in cima al file (MAP.md D45)
+## Fatto stanotte, non ancora in cima al file (MAP.md D45/D46)
 
+- [x] **`Cone`/`Cylinder` divisibili in pezzi uguali** (`split`, MAP.md
+  D46) — soprattutto per lo sfaccettato: due metà saldate quando il
+  pezzo è troppo grande per una lavorazione sola. `split=2` è la
+  scorciatoia per `sector_angle=360/split` (`Cylinder`) o
+  `full_angle/split` (`Cone`, che ora ha anche `sector_angle` — prima
+  non esisteva nessun modo di limitare lo sviluppo naturale). Sfaccettato
+  parziale ora supportato per entrambi (era esplicitamente "non ancora
+  deciso" per `Cylinder` da D42) — deve tornare un numero intero di
+  faccette, altrimenti errore esplicito. `margin` funziona così com'è,
+  zero codice nuovo per quello — era già generico. Trovato e corretto un
+  bug vero nel farlo: la larghezza faccetta di `Cone` sfaccettato usava
+  il conteggio del pezzo invece che del poligono intero. 11 test nuovi,
+  184/184 verdi.
 - [x] `Cone`/`Cylinder(faceted=True)` usano la `Calibration` dell'officina
   per raggio/K dei giunti (come `BentProfile`), non più una tabella per
   materiale a parte. `flat.bends` popolato anche lì (una `BendResult`

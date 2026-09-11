@@ -104,13 +104,56 @@ class TestCylinderMath(unittest.TestCase):
         with self.assertRaises(ValueError):
             Cylinder(diameter=150, height=500, sector_angle=361.0).develop()
 
-    def test_partial_sector_angle_with_faceted_raises(self):
-        # Prisma sfaccettato parziale non ancora deciso (MAP.md D42) — deve
-        # fallire in modo esplicito, non dare un risultato silenzioso.
+    def test_split_in_half_matches_explicit_sector_angle(self):
+        # MAP.md D46: split=2 e' una scorciatoia, non una via diversa.
+        via_split = Cylinder(diameter=150, height=500, split=2).develop()
+        via_angle = Cylinder(diameter=150, height=500, sector_angle=180.0).develop()
+        self.assertAlmostEqual(via_split.meta["width"], via_angle.meta["width"])
+        self.assertAlmostEqual(via_split.meta["sector_angle_deg"], 180.0)
+
+    def test_split_and_sector_angle_together_raises(self):
+        with self.assertRaises(ValueError):
+            Cylinder(diameter=150, height=500, sector_angle=180.0, split=2).develop()
+
+    def test_split_below_one_raises(self):
+        with self.assertRaises(ValueError):
+            Cylinder(diameter=150, height=500, split=0).develop()
+
+
+class TestCylinderPartialFaceted(unittest.TestCase):
+    """MAP.md D46 — sfaccettato diviso in pezzi (es. due meta' saldate)."""
+
+    def test_split_in_half_gives_half_the_facets(self):
+        full = Cylinder(diameter=150, height=500, thickness=2, faceted=True, n_facets=8).develop()
+        half = Cylinder(
+            diameter=150, height=500, thickness=2, faceted=True, n_facets=8, split=2,
+        ).develop()
+        self.assertEqual(half.meta["n_facets"], 4)
+        self.assertEqual(half.meta["n_facets_full"], 8)
+        self.assertEqual(len(half.bends), 3)   # 4 faccette -> 3 giunti
+        # Faccetta/angolo di piega sono proprieta' del poligono INTERO,
+        # identiche fra il pezzo intero e la meta'.
+        self.assertAlmostEqual(half.meta["facet_width"], full.meta["facet_width"])
+        self.assertAlmostEqual(half.meta["facet_bend_radius"], full.meta["facet_bend_radius"])
+
+    def test_margin_on_half_trims_the_weld_edges(self):
+        # Lo stesso parametro margin che accorcia il pezzo intero (MAP.md
+        # D46: "stessi parametri di accorciamento") vale sui due bordi
+        # della meta' — quelli che poi si saldano all'altra meta'.
+        no_margin = Cylinder(
+            diameter=150, height=500, thickness=2, faceted=True, n_facets=8, split=2,
+        ).develop()
+        with_margin = Cylinder(
+            diameter=150, height=500, thickness=2, faceted=True, n_facets=8, split=2, margin=2,
+        ).develop()
+        self.assertAlmostEqual(with_margin.meta["width_cut"], with_margin.meta["width"] - 2.0)
+        self.assertAlmostEqual(with_margin.meta["width"], no_margin.meta["width"])
+
+    def test_split_not_on_a_facet_boundary_raises(self):
+        # 8 faccette non si dividono in 3 parti uguali su un confine esatto.
         with self.assertRaises(ValueError):
             Cylinder(
-                diameter=150, height=500, thickness=2,
-                faceted=True, sector_angle=60.0,
+                diameter=150, height=500, thickness=2, faceted=True, n_facets=8, split=3,
             ).develop()
 
 

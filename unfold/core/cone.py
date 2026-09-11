@@ -31,6 +31,23 @@ in modo che la corda dritta a ciascun raggio (non l'arco) coincida con il
 lato reale del poligono inscritto nella circonferenza vera (non in quella
 sviluppata) a quel diametro.
 
+Settore parziale (sector_angle/split, MAP.md D46): a differenza di
+`Cylinder` (dove 360° è un valore libero, non geometrico), lo sviluppo
+"pieno" di un cono è FISSATO dalla sua geometria (`full_angle`,
+calcolato da diametri/altezza) — non è un numero a scelta. `sector_angle`
+qui è quindi un TETTO su quel valore naturale (deve stare in
+`(0, full_angle]`), non un rimpiazzo. `split` è la scorciatoia per il
+caso reale — "il cono è troppo grande per farlo da un pezzo solo, lo
+facciamo in N pezzi uguali saldati insieme" — `split=2` sviluppa
+`full_angle/2`, senza dover calcolare `full_angle` a mano prima.
+Alternativo a `sector_angle` esplicito, non combinabile. `margin`
+continua a valere com'è, tolto ai due bordi radiali di QUESTO pezzo — è
+la giunzione a saldatura fra i pezzi, non cambia parametro passando da
+un pezzo intero a un pezzo diviso. Sfaccettato + parziale: `n_facets`
+del prisma INTERO, la porzione ne prende una frazione proporzionale
+rispetto a `full_angle` (deve tornare un intero, altrimenti errore
+esplicito — stesso principio di `Cylinder`).
+
 Raggio e K delle pieghe sfaccettate (MAP.md D45): dalla `calibration`
 dell'officina, stessa scaletta di `BentProfile` (misurato -> K per
 materiale -> stima DIN 6935) — un giunto sfaccettato è una piega vera,
@@ -126,6 +143,8 @@ class Cone:
     height: float
     thickness: float = 0.0
     margin: float = 0.0
+    sector_angle: Optional[float] = None        # tetto sullo sviluppo naturale (MAP.md D46); None -> pieno
+    split: int = 1                              # scorciatoia per sector_angle=full_angle/split
     orientation: str = "vertical"
     faceted: bool = False
     n_facets: int = 8
@@ -148,6 +167,14 @@ class Cone:
             raise ValueError("thickness non può essere negativo.")
         if self.margin < 0:
             raise ValueError("margin non può essere negativo.")
+        if self.split < 1:
+            raise ValueError("split deve essere almeno 1.")
+        if self.split != 1 and self.sector_angle is not None:
+            raise ValueError(
+                "sector_angle e split sono due modi di dire la stessa cosa — "
+                "usane solo uno (sector_angle esplicito, o split per una "
+                "frazione uguale dello sviluppo naturale)."
+            )
         _check_orientation(self.orientation)
         if self.faceted and self.n_facets < 3:
             raise ValueError("n_facets deve essere almeno 3.")
@@ -179,13 +206,26 @@ class Cone:
         r_outer = slant * big_r / delta_r
         r_inner = slant * small_r / delta_r
 
+        full_angle = 360.0 * big_r / r_outer
+        if self.sector_angle is not None:
+            if not (0.0 < self.sector_angle <= full_angle + 1e-9):
+                raise ValueError(
+                    f"sector_angle deve essere maggiore di zero e al massimo lo "
+                    f"sviluppo naturale del cono ({full_angle:g}°)."
+                )
+            effective_angle = self.sector_angle
+        else:
+            effective_angle = full_angle / self.split
+
         bends = []
         if self.faceted:
             entities, reference_entities, extra_meta, bends = self._develop_faceted(
-                r_inner, r_outer, big_r, small_r,
+                r_inner, r_outer, big_r, small_r, full_angle, effective_angle,
             )
         else:
-            entities, reference_entities, extra_meta = self._develop_smooth(r_inner, r_outer, big_r)
+            entities, reference_entities, extra_meta = self._develop_smooth(
+                r_inner, r_outer, effective_angle,
+            )
 
         if self.orientation == "vertical":
             entities = swap_xy(entities)
@@ -202,6 +242,8 @@ class Cone:
             "slant_height": slant,
             "outer_radius": r_outer,
             "inner_radius": r_inner,
+            "full_angle_deg": full_angle,
+            "split": self.split,
             **extra_meta,
         }
 
@@ -212,11 +254,9 @@ class Cone:
 
     # ------------------------------------------------------------------
 
-    def _develop_smooth(self, r_inner: float, r_outer: float, big_r: float):
-        full_angle = 360.0 * big_r / r_outer
-
+    def _develop_smooth(self, r_inner: float, r_outer: float, effective_angle: float):
         half_margin_angle = math.degrees(self.margin / 2.0 / r_outer) if self.margin > 0 else 0.0
-        cut_angle = full_angle - 2.0 * half_margin_angle
+        cut_angle = effective_angle - 2.0 * half_margin_angle
         if cut_angle <= 0:
             raise ValueError("margin troppo grande rispetto allo sviluppo del cono.")
 
@@ -224,18 +264,35 @@ class Cone:
 
         reference_entities = []
         if self.margin > 0:
-            reference_entities = _sector_entities(r_inner, r_outer, full_angle)
+            reference_entities = _sector_entities(r_inner, r_outer, effective_angle)
 
         return entities, reference_entities, {"sector_angle_deg": cut_angle}
 
-    def _develop_faceted(self, r_inner: float, r_outer: float, big_r: float, small_r: float):
-        n = self.n_facets
+    def _develop_faceted(self, r_inner: float, r_outer: float, big_r: float, small_r: float,
+                         full_angle: float, effective_angle: float):
+        n_full = self.n_facets
 
         # Passo angolare tale che la corda dritta a r_outer coincida col
         # lato del poligono a N lati inscritto nella circonferenza VERA di
         # raggio big_r (non nella circonferenza sviluppata r_outer).
-        angular_step_rad = 2.0 * math.asin(big_r * math.sin(math.pi / n) / r_outer)
+        angular_step_rad = 2.0 * math.asin(big_r * math.sin(math.pi / n_full) / r_outer)
         angular_step = math.degrees(angular_step_rad)
+
+        # Quante faccette di QUESTO pezzo (MAP.md D46) — n_full resta il
+        # conteggio del prisma INTERO, riferito allo sviluppo naturale
+        # LISCIO (full_angle): la corda/l'angolo di piega non cambiano,
+        # sono proprietà del poligono intero.
+        if effective_angle >= full_angle - 1e-9:
+            n = n_full
+        else:
+            raw_n = n_full * effective_angle / full_angle
+            n = round(raw_n)
+            if n < 1 or abs(raw_n - n) > 1e-6:
+                raise ValueError(
+                    f"sector_angle/split (effettivo {effective_angle:g}°) non taglia "
+                    f"n_facets={n_full} su un confine di faccetta esatto "
+                    f"({raw_n:g} faccette) — scegli una combinazione che torni intera."
+                )
         full_span = n * angular_step
 
         if self.facet_bend_radius is not None and self.facet_bend_radius <= 0:
@@ -285,11 +342,14 @@ class Cone:
 
         extra_meta = {
             "n_facets": n,
+            "n_facets_full": n_full,
             "facet_angle_deg": angular_step,
             "facet_bend_radius": bend_radius,
             "facet_k_factor": k,
             "facet_bend_allowance": bend_allowance,
-            "outer_facet_width": 2.0 * big_r * math.sin(math.pi / n),
-            "inner_facet_width": 2.0 * small_r * math.sin(math.pi / n),
+            # Corda del poligono INTERO (n_full lati) - proprietà del
+            # poligono, non di quante faccette prende questo pezzo.
+            "outer_facet_width": 2.0 * big_r * math.sin(math.pi / n_full),
+            "inner_facet_width": 2.0 * small_r * math.sin(math.pi / n_full),
         }
         return entities, reference_entities, extra_meta, bends

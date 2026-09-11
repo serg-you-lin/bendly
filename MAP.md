@@ -900,6 +900,62 @@ still importable, still documented in `docs/API.md`) for anyone who
 wants that specific rough-material estimate standalone — orphaned from
 `unfold`'s own default path, not deleted. Left as is, not raised with
 Federico yet — worth a explicit "keep or retire" call, not assumed.
+
+---
+
+### D46 — `Cone`/`Cylinder` developable in equal pieces (`split`), faceted included (11 Sep 2026)
+
+Federico's call: especially when a cone/cylinder is made from bent
+(faceted) sheet rather than rolled, it is often built as 2 (or more)
+equal pieces welded together — too big for one press-brake run in one
+piece. Those pieces need the same shortening parameter the full
+development already has for its weld seam (`margin`) — not a new,
+separate parameter.
+
+**`Cylinder`** already had `sector_angle` (D42) for an arbitrary partial
+development (e.g. a sella's 60°) — that alone already covers "split in
+half" (`sector_angle=180`), just requires the caller to do the angle
+math. Added `split: int = 1` as a convenience — `split=2` means
+`sector_angle=360/split` — mutually exclusive with an explicit
+`sector_angle` (both non-default raises, no silent precedence). The gap
+`faceted=True` + partial `sector_angle` left explicitly open in D42
+("not yet decided") is closed here: `n_facets` now means the count for
+the FULL 360° prism; a partial piece takes `n_facets × angle/360` of
+them, required to land on a whole facet (raises a clear error
+otherwise, same "explicit over silently wrong" rule as everywhere else
+tonight). Chord/bend-angle are properties of the full polygon, unchanged
+by how much of it this piece covers — verified equal between a full
+`Cylinder` and its `split=2` half in a new test.
+
+**`Cone`** had no partial-development concept at all before this — its
+"full" angle is fixed by geometry (`full_angle_deg`, now reported in
+`meta`), not a free value like the cylinder's 360°. Added
+`sector_angle: Optional[float] | None = None` (a cap on that natural
+value, must be `<= full_angle_deg`) and the same `split` convenience
+(`split=2` → `full_angle/2`), same mutual-exclusion rule. Faceted+partial
+resolves proportionally against the smooth `full_angle` (the faceted
+model's own natural span differs from it by the same small
+approximation the existing convergence test already documents) — same
+"must land on a whole facet" requirement.
+
+Found and fixed one real bug while wiring this: `Cone`'s faceted
+`outer_facet_width`/`inner_facet_width` were computed from `n` (this
+piece's facet count) instead of `n_full` (the whole polygon's) — chord
+width is a property of the full inscribed polygon, not of how many of
+its facets a given piece happens to cover; using the reduced count would
+have reported the wrong chord width for any non-full piece. Caught by
+building the split feature itself, before it shipped with the bug — not
+found by a pre-existing test.
+
+`margin` needed zero new code for any of this — it already trims a
+fixed amount off whatever span gets built (`width`/`vertex_angles`),
+regardless of where that span came from. That was the actual ask
+("stessi parametri di accorciamento che prendono ora gli sviluppi
+completi") and it is satisfied by construction, not by adding anything.
+11 new tests (6 `Cylinder`, 5 `Cone` — matching `sector_angle`, mutual
+exclusion, faceted facet-count halving, margin still working, indivisible
+split raising), **184/184 green**.
+
 ## Closed questions (history)
 
 - *Outer, interior, or centerline quotes?* → core at centerline (D1);

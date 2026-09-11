@@ -183,3 +183,7 @@ through `to_dxf()`, consume `.entities` / `.meta` / `.bends` directly.
 - **`tests/`** — the executable specification: golden values from real shop parts
   (`data_4_cloude/`, not versioned), regenerated only by the dedicated
   `tests/generate_*.py` scripts.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). Copyright (c) 2026 Federico Sidraschi.

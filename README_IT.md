@@ -184,3 +184,7 @@ passare da `to_dxf()`, consuma `.entities` / `.meta` / `.bends` direttamente.
 - **`tests/`** — la specifica eseguibile: valori golden da pezzi reali di
   officina (`data_4_cloude/`, non versionati), rigenerati solo dagli script
   dedicati `tests/generate_*.py`.
+
+## Licenza
+
+MIT — vedi [`LICENSE`](LICENSE). Copyright (c) 2026 Federico Sidraschi.

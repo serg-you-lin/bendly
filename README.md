@@ -186,4 +186,6 @@ through `to_dxf()`, consume `.entities` / `.meta` / `.bends` directly.
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE). Copyright (c) 2026 Federico Sidraschi.
+All rights reserved — see [`LICENSE`](LICENSE). Copyright (c) 2026
+Federico Sidraschi. Source-available for reading; no license is
+granted to use, copy, modify, or distribute it.

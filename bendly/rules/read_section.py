@@ -1,12 +1,12 @@
 """
-unfold/rules/read_section.py
+bendly/rules/read_section.py
 ------------------------------
 Read a 2D section outline (lines + arcs, forge-neutral schema) and decide
 whether it is bent sheet metal, then recover the parameters the flat-length
 engine needs.
 
 This is the first piece of the drawing interpreter. It is the inverse of
-unfold/model/section.py: `Section` builds a section from parameters, this reads
+bendly/model/section.py: `Section` builds a section from parameters, this reads
 the parameters back from a section.
 
 "Is it bent sheet metal?" - three signals:
@@ -37,7 +37,7 @@ of the hand-rolled walker below. Reverted before `pippo` (the future
 drawing interpreter this feeds, see `docs/ARCHITECTURE.md`) exists for
 real: deciding the forge-native shape of this contract now, for an
 imagined consumer, was exactly the mistake D43's phases 2-4 already made
-once. This module is forge-free again, like the rest of `unfold` minus
+once. This module is forge-free again, like the rest of `bendly` minus
 `io/dxf.py` - revisit when `pippo` is real and its actual needs are known.
 """
 

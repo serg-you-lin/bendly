@@ -1,7 +1,7 @@
 # SCRIPTS — script di esplorazione dell'API
 
 Script standalone alla **radice del repo** (numerati), uno per area
-dell'API pubblica di `unfold`. Girano senza argomenti
+dell'API pubblica di `bendly`. Girano senza argomenti
 (`python 00_cone_cylinder.py`) e scrivono in `output/` (ignorata da git).
 Sono la palestra per capire e collaudare l'API, non codice di libreria.
 

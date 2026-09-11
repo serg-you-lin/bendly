@@ -1,7 +1,7 @@
 """
 tests/reconstruct.py
 --------------------
-Strumento INTERNO (non API pubblica, mai in unfold.__all__).
+Strumento INTERNO (non API pubblica, mai in bendly.__all__).
 
 Da un pezzo reale TruBend — DXF piatto + file .bnc — ricostruisce lo
 sketch primitivo a mezzeria (una Section, stesso formato della Fase 0),
@@ -47,9 +47,9 @@ from typing import List, Optional, Tuple
 
 import ezdxf
 
-from unfold.rules.deduction import external_to_centerline_deduction
-from unfold.model.section import SECTION_INNER_RADIUS_MM, Section
-from unfold.adapters.trubend import leggi_bnc
+from bendly.rules.deduction import external_to_centerline_deduction
+from bendly.model.section import SECTION_INNER_RADIUS_MM, Section
+from bendly.adapters.trubend import leggi_bnc
 
 # layer della linea di piega nei DXF TruBend -> angolo nello schema nomi
 # (piatto = 180, piega in su = 90, piega in giù = 270).

@@ -1,7 +1,7 @@
-# ARCHITECTURE — come è fatto `unfold`, e come si incastra col resto
+# ARCHITECTURE — come è fatto `bendly`, e come si incastra col resto
 
 Questo file spiega il flusso e i confini fra i pezzi (forge, framer,
-unfold, pippo) — non ripete l'API (quella è `docs/API.md`, da scrivere)
+bendly, pippo) — non ripete l'API (quella è `docs/API.md`, da scrivere)
 e non ripete le decisioni (quelle sono `MAP.md`). Se riapri il codice fra
 un mese e non si capisce più niente, il punto di partenza è questo file,
 non il codice.
@@ -19,7 +19,7 @@ non il codice.
   dov'è la cornice e il cartiglio (altrimenti `heal` la vede come un
   `outer` normale e falsa tutto quello che viene dopo), estrae le
   informazioni semantiche del cartiglio e le passa a pippo.
-- **unfold** (questo repo) — sa cosa sia la lamiera piegata. Due lavori:
+- **bendly** (questo repo) — sa cosa sia la lamiera piegata. Due lavori:
   **calcolare** uno sviluppo da parametri (`Cone`, `Cylinder`,
   `BentProfile`) e **leggere** un contorno per capire se è lamiera
   piegata e con che misure (`read_section`).
@@ -27,7 +27,7 @@ non il codice.
   L'interprete di disegno: prende un file CAD intero, usa framer per
   togliere la cornice dal conto e forge per trovare i cluster, e per
   ciascuno decide cosa fare — fra cui chiedere a
-  `unfold.read_section()` "in questo cluster c'è lamiera piegata?".
+  `bendly.read_section()` "in questo cluster c'è lamiera piegata?".
   Il nome è deciso l'11 set 2026 (prima non ne avevamo uno, e infatti
   confondeva).
 
@@ -54,7 +54,7 @@ file CAD (DXF/PDF)
    PIPPO   -- per ogni cluster che sembra una vista di lamiera --
       |
       v
-  unfold.read_section(...)  ->  SectionReading
+  bendly.read_section(...)  ->  SectionReading
       |                             is_sheet_metal, is_bent, thickness,
       |                             centerline_segments/angles OPPURE
       |                             pure_arc_radius/pure_arc_angle_deg
@@ -65,7 +65,7 @@ file CAD (DXF/PDF)
 ```
 
 **Pippo è una pipeline o un oggetto?** Una pipeline, per come è disegnato
-sopra — un flusso file→forge→pippo→unfold, non uno stato che vive a
+sopra — un flusso file→forge→pippo→bendly, non uno stato che vive a
 lungo. Ma "pipeline" non vuol dire "funzione unica": dentro, cammina i
 cluster e per ciascuno costruisce un piccolo referto (candidato lamiera,
 scartato, non capito) — quello sì può essere un oggetto per cluster,
@@ -76,7 +76,7 @@ questa la forma: pipeline all'esterno, oggetti-risultato all'interno.
 
 ---
 
-## Cosa riceve pippo da unfold, oggi
+## Cosa riceve pippo da bendly, oggi
 
 `read_section()` ritorna un `SectionReading` — un dataclass
 interrogabile, non un dict sparso (vedi `python-code-style`: i risultati
@@ -95,13 +95,13 @@ Regola pratica per pippo: **mai più di uno fra i due gruppi di misure
 valorizzato insieme** — o è un profilo a flange (primo gruppo), o è un
 arco puro (secondo gruppo), o nessuno dei due (`notes` dice perché).
 
-## Cosa manda pippo a unfold, oggi
+## Cosa manda pippo a bendly, oggi
 
 `read_section(entities: List[dict], ...)` prende in ingresso una
 lista di dict grezzi (`{"type": "line", ...}`) — lo stesso schema che
 `Cone`/`Cylinder`/`BentProfile` producono generando, e che
 `forge.load_geometry()` accetta come "geometria da un generatore"
-(MAP.md D43). `unfold` non importa forge da nessuna parte tranne
+(MAP.md D43). `bendly` non importa forge da nessuna parte tranne
 `io/dxf.py`, lettura compresa — provato il contrario per una notte
 intera (D43), tornato indietro: non perché non funzionasse (167/167
 verdi anche lì), ma perché decidere QUEL contratto oggi vorrebbe dire
@@ -113,7 +113,7 @@ vero davanti, non immaginato.
 
 ---
 
-## Layer di `unfold`, dipendenza in una direzione sola
+## Layer di `bendly`, dipendenza in una direzione sola
 
 ```
 core/        matematica di piega pura (Bend, K-factor, DIN 6935)
@@ -130,7 +130,7 @@ Ogni layer può dipendere solo da quelli sopra di lui in questa lista,
 mai il contrario. `core/` non sa che forge esiste, punto — qualunque
 codice nuovo che gli farebbe importare forge è nel posto sbagliato.
 
-## Cosa espone `unfold`, per chi ci costruisce sopra
+## Cosa espone `bendly`, per chi ci costruisce sopra
 
 Non solo una pipeline chiusa (`develop_from_external_flanges()`,
 `export_part()`) — anche i pezzi sciolti, per chi vuole comporli da sé

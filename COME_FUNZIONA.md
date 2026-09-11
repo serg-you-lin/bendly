@@ -135,7 +135,7 @@ sono sempre gli stessi, non se ne inventano altri per ogni feature. Il
 nome standard di ognuno è il campo `tipo_cliente` della calibrazione
 (niente più lettere A/B/C/D, MAP.md D39):
 
-| `tipo_cliente` | Chi è | Cosa dà a `unfold` | Calibrazione |
+| `tipo_cliente` | Chi è | Cosa dà a `bendly` | Calibrazione |
 |---|---|---|---|
 | `zero_config` | sconosciuto, scarica e usa, non legge nulla | niente | `default` (o omessa) — raggio fisso 1 mm, K stima DIN |
 | `cava_propria` | carpenteria vicina, ha le sue cave ma non il CAM | solo `cava_per_spessore` reale (5 minuti, mai una misura) | copia di `esempio_din_3cave.json` — raggio dalla cava vera, K stima DIN |
@@ -175,7 +175,7 @@ materiale), non dal file. Per un CAM diverso: ogni CAM esporta un DXF
 piatto, e la lunghezza sviluppo è il rettangolo che lo contiene — quello si
 legge sempre uguale. Il lettore del formato nativo (`.bnc`…) serve solo ad
 avere l'accorciamento spezzato piega per piega.
-`unfold/adapters/trubend.py` è il lettore per TruBend.
+`bendly/adapters/trubend.py` è il lettore per TruBend.
 
 ## Quanto ci si può fidare (onesto)
 
@@ -206,7 +206,7 @@ avere l'accorciamento spezzato piega per piega.
 ## Come si usa (codice)
 
 ```python
-from unfold import Bend, BentProfile
+from bendly import Bend, BentProfile
 
 flat = BentProfile(
     flanges=[60, 110, 60],                   # segmenti a mezzeria (dallo sketch)

@@ -1,5 +1,5 @@
 """
-unfold/core/bend.py
+bendly/core/bend.py
 --------------------
 Sviluppo piano di un profilo piegato (lamiera con una o più pieghe a
 pressopiega) — flange rettilinee unite da pieghe, secondo le formule
@@ -41,7 +41,7 @@ prospettiva — non si ridiscute ad ogni nuova fonte di dati.
 
 `BentProfile.develop()` non usa più queste formule direttamente:
 l'accorciamento di ogni piega lo dà la `calibration` (obbligatoria), dalla
-cava — vedi `unfold/rules/deduction.py` e `MAP.md` D33. I metodi
+cava — vedi `bendly/rules/deduction.py` e `MAP.md` D33. I metodi
 `Bend.centerline_setback()` / `outside_setback()` / `inside_setback()` /
 `bend_allowance()` restano come utility pure e sono usati direttamente
 dalle linee di piega di una `Cone` / `Cylinder` sfaccettata (lì non c'è
@@ -106,7 +106,7 @@ class Bend:
     In un `BentProfile` serve solo `angle` (+ eventualmente `cava` per
     questa piega, se diversa da quella di tabella della calibrazione).
     L'accorciamento lo decide la `calibration` del profilo, dalla cava —
-    vedi unfold/rules/deduction.py (MAP.md D33).
+    vedi bendly/rules/deduction.py (MAP.md D33).
 
     `radius` / `k_factor`:
       - in un `BentProfile`: `radius` serve solo se conosci il raggio

@@ -1,5 +1,5 @@
 """
-unfold/adapters/trubend.py
+bendly/adapters/trubend.py
 ---------------------------
 Lettore dei file .bnc di TruBend / TruTops (formato testo "Flux").
 

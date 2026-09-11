@@ -2,7 +2,7 @@ import math
 import os
 import unittest
 
-from unfold import Bend, BentProfile, Calibration, estimate_k_factor, MATERIAL_K_FACTORS
+from bendly import Bend, BentProfile, Calibration, estimate_k_factor, MATERIAL_K_FACTORS
 
 
 class TestBendFormulas(unittest.TestCase):

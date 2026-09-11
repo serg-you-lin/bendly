@@ -13,7 +13,7 @@ try:
 except ImportError:
     FORGE_AVAILABLE = False
 
-from unfold import Bend, BentProfile, Cone, Cylinder
+from bendly import Bend, BentProfile, Cone, Cylinder
 
 
 @unittest.skipUnless(FORGE_AVAILABLE, "forge non installato — pip install -e ../dxf-forge")

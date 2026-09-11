@@ -16,7 +16,7 @@ try:
 except ImportError:
     FORGE_AVAILABLE = False
 
-from unfold import Section, export_part
+from bendly import Section, export_part
 
 
 @unittest.skipUnless(FORGE_AVAILABLE, "forge non installato — pip install -e ../dxf-forge")
@@ -25,9 +25,9 @@ class TestExportPart(unittest.TestCase):
     def _section(self) -> Section:
         return Section.default("L", [50.0, 60.0], [90.0], thickness=2.0)
 
-    def test_e_in_unfold_all(self):
-        import unfold
-        self.assertIn("export_part", unfold.__all__)
+    def test_e_in_bendly_all(self):
+        import bendly
+        self.assertIn("export_part", bendly.__all__)
 
     def test_le_quattro_combinazioni_scrivono_file(self):
         section = self._section()

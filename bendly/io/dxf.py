@@ -1,8 +1,8 @@
 """
-unfold/io/dxf.py
+bendly/io/dxf.py
 -----------------
-Export di un FlatGeometry (unfold.model.geometry) su file DXF, via forge.
-Unico modulo di `unfold` che importa forge — e lo fa lazy: se forge non è
+Export di un FlatGeometry (bendly.model.geometry) su file DXF, via forge.
+Unico modulo di `bendly` che importa forge — e lo fa lazy: se forge non è
 installato, il resto del pacchetto (calcolo dello sviluppo) funziona
 comunque; solo queste due funzioni sollevano ImportError.
 

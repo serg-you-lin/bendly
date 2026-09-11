@@ -10,7 +10,7 @@ Richiede forge installato a fianco: pip install -e ../dxf-forge
 
 from pathlib import Path
 
-from unfold import Cone, Cylinder
+from bendly import Cone, Cylinder
 
 # =============================================================================
 # PARAMETRI DI INPUT — diametri ESTERNI, in millimetri

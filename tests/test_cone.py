@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from unfold import Cone
+from bendly import Cone
 
 
 class TestConeMath(unittest.TestCase):
@@ -103,7 +103,7 @@ class TestConeFaceted(unittest.TestCase):
         # cone.py::_BEND_LINE_INSET) per non condividere nodo coi vertici
         # del contorno — altrimenti forge spezza ogni faccetta in una parte
         # a sé (bug osservato e corretto: 8 parti invece di 1).
-        from unfold.core.cone import _BEND_LINE_INSET
+        from bendly.core.cone import _BEND_LINE_INSET
 
         flat = Cone(
             top_diameter=200, bottom_diameter=150, height=100, thickness=2,
@@ -183,7 +183,7 @@ class TestConeFaceted(unittest.TestCase):
             ).develop()
 
     def test_margin_trims_only_end_facets(self):
-        from unfold.core.cone import _BEND_LINE_INSET
+        from bendly.core.cone import _BEND_LINE_INSET
 
         flat = Cone(
             top_diameter=200, bottom_diameter=150, height=100, thickness=2,

@@ -1,5 +1,5 @@
 """
-unfold/model/geometry.py
+bendly/model/geometry.py
 -------------------------
 FlatGeometry — il contratto neutro tra il motore matematico di Unfold e
 qualsiasi consumatore a valle. Puri dati Python (dataclass + dict), zero
@@ -8,13 +8,13 @@ da `forge.load_geometry()` — {"type": "line"|"arc"|"circle"|"polyline", ...,
 "role": ...} — così Unfold non deve conoscere alcun tipo interno di forge, e
 forge non deve conoscere nulla di Unfold.
 
-forge entra in gioco SOLO in `unfold/io/dxf.py` (`to_forge_result()`/
+forge entra in gioco SOLO in `bendly/io/dxf.py` (`to_forge_result()`/
 `to_dxf()`), con import lazy: se forge non è installato, `Cone(...).develop()`
 funziona comunque e i dati grezzi restano leggibili/utilizzabili da
 `.entities`/`.meta` — solo il salvataggio DXF richiede forge installato a
 fianco (`pip install -e <percorso a dxf-forge>`). `FlatGeometry.to_dxf()`/
 `.to_forge_result()` restano metodi comodi da chiamare, ma il loro corpo
-vive in `unfold/io/dxf.py`: questo modulo non importa mai forge, nemmeno
+vive in `bendly/io/dxf.py`: questo modulo non importa mai forge, nemmeno
 lazy — lo strato `model` resta pulito, lo strato `io` fa da ponte.
 """
 
@@ -99,11 +99,11 @@ class FlatGeometry:
     meta: Dict[str, Any] = field(default_factory=dict)
     reference_entities: List[Dict[str, Any]] = field(default_factory=list)
     # una BendResult per piega — popolata solo da BentProfile.develop(),
-    # vuota per Cone / Cylinder (vedi unfold/core/bend.py)
+    # vuota per Cone / Cylinder (vedi bendly/core/bend.py)
     bends: List[Any] = field(default_factory=list)
 
     # ------------------------------------------------------------------
-    # Integrazione con forge — deleghe sottili a unfold/io/dxf.py, che è
+    # Integrazione con forge — deleghe sottili a bendly/io/dxf.py, che è
     # l'unico modulo a importare forge (lazy). Questo file resta pulito.
     # ------------------------------------------------------------------
 

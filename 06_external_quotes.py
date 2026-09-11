@@ -15,8 +15,8 @@ Richiede forge installato a fianco: pip install -e ../dxf-forge
 
 from pathlib import Path
 
-from unfold import Bend, BentProfile
-from unfold.rules.deduction import external_flanges_to_centerline, centerline_to_external_flange
+from bendly import Bend, BentProfile
+from bendly.rules.deduction import external_flanges_to_centerline, centerline_to_external_flange
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 

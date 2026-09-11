@@ -1,5 +1,5 @@
 """
-unfold/core/cone.py
+bendly/core/cone.py
 --------------------
 Sviluppo piano del tronco di cono (settore anulare). Stessa matematica di
 `cono.py` (dxf-forge), riscritta come motore parametrico puro — zero

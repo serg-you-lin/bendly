@@ -1,6 +1,6 @@
-# API — una scheda per ogni nome pubblico di `unfold`
+# API — una scheda per ogni nome pubblico di `bendly`
 
-Copre ogni nome in `unfold.__all__` (24 nomi). Non ripete il *perché*
+Copre ogni nome in `bendly.__all__` (24 nomi). Non ripete il *perché*
 (quello è `MAP.md`) né il flusso generale (quello è
 `docs/ARCHITECTURE.md`) — qui solo: cosa prende, cosa ritorna, cosa
 solleva, un esempio copiabile.
@@ -12,7 +12,7 @@ dello sviluppo (`model`) → pipeline di comodo (`human_layer`).
 
 ---
 
-## Generatori — `unfold.core`
+## Generatori — `bendly.core`
 
 ### `Cone`
 
@@ -58,7 +58,7 @@ uguali saldati (`split=2` = due metà). A differenza di `Cylinder`, qui
   `facet_k_factor`/`facet_bend_allowance`/... (sfaccettato).
 
 ```python
-from unfold import Cone
+from bendly import Cone
 flat = Cone(top_diameter=1600, bottom_diameter=1016, height=1000, thickness=5).develop()
 flat.to_dxf("cone.dxf")   # richiede forge installato a fianco
 ```
@@ -96,7 +96,7 @@ principio di `Cone`.
   campi sfaccettato se `faceted=True`.
 
 ```python
-from unfold import Cylinder
+from bendly import Cylinder
 flat = Cylinder(diameter=1016, height=3895, thickness=5).develop()
 sella = Cylinder(diameter=603, height=400, thickness=3, sector_angle=60).develop()
 ```
@@ -142,7 +142,7 @@ Tutti e quattro sollevano `TypeError` se chiamati con `radius=None`
 scritto a mano).
 
 ```python
-from unfold import Bend
+from bendly import Bend
 b = Bend(angle=90, radius=4.0, k_factor=0.42)
 allowance = b.bend_allowance(thickness=3.0, k_factor=0.42)
 
@@ -179,7 +179,7 @@ decide l'accorciamento di ogni piega dalla cava (MAP.md D33) —
   setback mangia più della flangia).
 
 ```python
-from unfold import Bend, BentProfile
+from bendly import Bend, BentProfile
 flat = BentProfile(
     flanges=[50, 80, 50],
     bends=[Bend(angle=90), Bend(angle=90)],
@@ -203,7 +203,7 @@ allora era la via di default delle pieghe sfaccettate di `Cone`/
 `Cylinder`; ora quelle passano dalla `calibration` dell'officina
 (`k_din6935`, non questa tabella). Resta pubblica e chiamabile a mano
 per chi vuole proprio questa stima per materiale, ma nessun codice di
-`unfold` la chiama più di default. **Raises**: `ValueError` se
+`bendly` la chiama più di default. **Raises**: `ValueError` se
 `thickness <= 0`.
 
 ### `MATERIAL_K_FACTORS`
@@ -214,11 +214,11 @@ MATERIAL_K_FACTORS: dict[str, float]
 ```
 
 Costante, punto di partenza per `estimate_k_factor` — stessa nota:
-orfana dal percorso di default di `unfold` (D45), resta pubblica.
+orfana dal percorso di default di `bendly` (D45), resta pubblica.
 
 ---
 
-## Calibrazione e accorciamento — `unfold.rules.deduction`
+## Calibrazione e accorciamento — `bendly.rules.deduction`
 
 ### `Calibration`
 
@@ -247,7 +247,7 @@ se la calibrazione non ha tabella cave e non è dato né `cava` né
 `radius` per lo spessore richiesto.
 
 ```python
-from unfold import Calibration
+from bendly import Calibration
 cal = Calibration.load("default")
 info = cal.deduction_detail(thickness=3.0, angle_deg=90.0)
 print(info.rule, info.source, info.value)
@@ -284,14 +284,14 @@ ritorna la lista dei problemi trovati (vuota = coerente, o se
 `tipo_cliente` non è dichiarato: controllo opt-in).
 
 ```python
-from unfold import Calibration, tipo_cliente_coerente
+from bendly import Calibration, tipo_cliente_coerente
 problemi = tipo_cliente_coerente(Calibration.load("tipo_misurato"))
 assert not problemi, problemi
 ```
 
 ---
 
-## Leggere un disegno — `unfold.rules.read_section`
+## Leggere un disegno — `bendly.rules.read_section`
 
 ### `read_section`
 
@@ -311,7 +311,7 @@ mai: un contorno non riconosciuto torna con `is_sheet_metal=False` e/o
 `notes` che spiega perché, mai un'eccezione.
 
 ```python
-from unfold import read_section
+from bendly import read_section
 reading = read_section(my_entities)
 if reading.is_sheet_metal and reading.centerline_segments:
     # profilo a flange dritte -> BentProfile
@@ -325,7 +325,7 @@ elif reading.is_sheet_metal and reading.pure_arc_radius is not None:
 
 ---
 
-## Modello a quote umane — `unfold.model.section`
+## Modello a quote umane — `bendly.model.section`
 
 ### `Section`
 
@@ -362,7 +362,7 @@ flangia è troppo corta per il raggio/angolo delle pieghe adiacenti
 alla calibrazione).
 
 ```python
-from unfold.model.section import Section
+from bendly.model.section import Section
 sec = Section.from_external_flanges("L", [100, 110], [90], thickness=3)
 sec.to_dxf("sezione_L.dxf")
 ```
@@ -371,7 +371,7 @@ sec.to_dxf("sezione_L.dxf")
 
 ---
 
-## Dati grezzi dello sviluppo — `unfold.model.geometry`
+## Dati grezzi dello sviluppo — `bendly.model.geometry`
 
 ### `FlatGeometry`
 
@@ -382,7 +382,7 @@ FlatGeometry(
 )
 ```
 
-Il contratto neutro fra `unfold` e chiunque a valle — output di ogni
+Il contratto neutro fra `bendly` e chiunque a valle — output di ogni
 `.develop()`/`.section()`. `entities` è nello stesso schema di
 `forge.load_geometry()`, zero import di forge in questo modulo.
 
@@ -406,7 +406,7 @@ eccezione propria.
 
 ---
 
-## Pipeline di comodo — `unfold.human_layer`
+## Pipeline di comodo — `bendly.human_layer`
 
 ### `develop_from_external_flanges`
 
@@ -427,7 +427,7 @@ chi la chiama non vede mai la mezzeria. Stesse eccezioni di
 `BentProfile.develop()` (la conversione stessa non solleva).
 
 ```python
-from unfold import Bend, develop_from_external_flanges
+from bendly import Bend, develop_from_external_flanges
 flat = develop_from_external_flanges(
     external_flanges=[100, 110], bends=[Bend(angle=90)],
     thickness=3, width=300,
@@ -454,8 +454,8 @@ installato (via `io.dxf.write_part_dxf`); propaga le eccezioni di
 `section.to_bent_profile(width, calibration).develop()`.
 
 ```python
-from unfold.model.section import Section
-from unfold import export_part
+from bendly.model.section import Section
+from bendly import export_part
 sec = Section.from_external_flanges("L", [100, 110], [90], thickness=3)
 export_part(sec, width=300, path="pezzo.dxf", include_section=True, include_header=True)
 ```
@@ -540,8 +540,8 @@ flangia — succede sull'anima di una Z/omega (MAP.md D1), mai su L/U.
 ## Il flusso completo, in ordine
 
 ```python
-from unfold import Bend, BentProfile, Calibration, read_section
-from unfold.model.section import Section
+from bendly import Bend, BentProfile, Calibration, read_section
+from bendly.model.section import Section
 
 # 1. Generare uno sviluppo da parametri, zero disegno coinvolto
 flat = BentProfile(

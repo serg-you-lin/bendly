@@ -1,5 +1,5 @@
 """
-unfold
+bendly
 ------
 Motore matematico puro per sviluppi piani di forme sviluppabili: forme
 avvolte (cono, cilindro) e profili piegati a pressopiega (BentProfile).
@@ -10,7 +10,7 @@ un'integrazione nativa con forge, non ancora giustificata finché "pippo"
 davvero. `.develop()` ritorna sempre un FlatGeometry — dati puri, nessun
 import di forge.
 
-    from unfold import Cone, Cylinder, Bend, BentProfile
+    from bendly import Cone, Cylinder, Bend, BentProfile
 
     flat = Cone(top_diameter=1600, bottom_diameter=1016, height=1000, thickness=5).develop()
     flat.to_dxf("cone.dxf")   # richiede forge installato a fianco
@@ -36,7 +36,7 @@ from importlib.metadata import version, PackageNotFoundError
 # metadati del pacchetto installato. In sviluppo senza install (`pip
 # install -e .` non ancora dato) si ripiega su un segnaposto.
 try:
-    __version__ = version("unfold")
+    __version__ = version("bendly")
 except PackageNotFoundError:
     __version__ = "0.0.0+dev"
 

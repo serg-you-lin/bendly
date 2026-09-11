@@ -14,7 +14,7 @@ Richiede forge installato a fianco: pip install -e ../dxf-forge
 
 from pathlib import Path
 
-from unfold import Section, export_part
+from bendly import Section, export_part
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 

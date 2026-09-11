@@ -4,7 +4,7 @@ Modulo di riferimento. Nasce dal dubbio sul calcolo delle pieghe **non a
 90°** (vedi `MAP.md` D34, `TODO.md`): prima di decidere quanto fidarsi
 della formula fuori dai 90° bisogna sapere di che piega stiamo parlando,
 perché "in aria" e "coniata" sono due mondi diversi e la formula della
-fibra neutra (DIN 6935, quella che usa `unfold`) è tarata su uno solo.
+fibra neutra (DIN 6935, quella che usa `bendly`) è tarata su uno solo.
 
 I termini non sono puliti: ogni lingua e ogni costruttore raggruppa in
 modo suo. Sotto, prima la sostanza, poi il glossario nelle quattro lingue
@@ -31,7 +31,7 @@ angolo, basta cambiare la quota di discesa.
   dell'apertura della cava**: regola pratica ~15% per l'acciaio dolce
   (~20% per l'inox 304, ~12% per l'alluminio 5052). Cambi cava → cambi
   raggio → cambia l'allungamento nella piega → cambia l'accorciamento.
-  È esattamente il motivo per cui `unfold` stima `r ≈ cava / 6` (≈ 16%).
+  È esattamente il motivo per cui `bendly` stima `r ≈ cava / 6` (≈ 16%).
 - **Quando:** praticamente sempre, oggi. Officina 1 lavora così.
 
 ### 2. Sul fondo (*bottoming* / *bottom bending*)
@@ -85,8 +85,8 @@ un po' lì sotto).
 
 ## Perché ci riguarda
 
-`unfold` calcola l'accorciamento con **una formula** (metodo della fibra
-neutra, `unfold/rules/deduction.py`, `MAP.md` D33):
+`bendly` calcola l'accorciamento con **una formula** (metodo della fibra
+neutra, `bendly/rules/deduction.py`, `MAP.md` D33):
 
 ```
 BD = 2·(r + s/2)·tan(β/2) − β·(r + K·s)
@@ -129,7 +129,7 @@ sull'angolo si muovono in modi che non vediamo.
 - **Scuola tedesca (Umformtechnik).** La norma **DIN 6935**
   ("Kaltbiegen von Flacherzeugnissen aus Stahl") lega K-factor, raggio e
   spessore per il calcolo delle abwicklungen; è la base della formula di
-  `unfold`. Trumpf ci ha costruito sopra il database materiale della
+  `bendly`. Trumpf ci ha costruito sopra il database materiale della
   TruBend. Manuali di riferimento: Kurt Lange, *Umformtechnik*.
 - **Scuola giapponese (Amada e costruttori di stampi).** Molta della
   pratica fine su V-bending, selezione cava, ritorno elastico e le tre

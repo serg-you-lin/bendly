@@ -1,13 +1,9 @@
 # bendly
 
-*(Il pacchetto Python che si installa/importa resta `unfold` — `pip install -e .`,
-`from unfold import ...` — non ancora rinominato: solo il progetto/repo si chiama
-"bendly".)*
-
 > **Stato: alpha.** Le Fasi 1–3 sono fatte (forme avvolte, profili piegati a
 > pressopiega, il layer umano con quote esterno-esterno e la vista in sezione
 > quotata). Le Fasi 4–5 (scatole / pieghe su più assi, info di piega dentro i
-> DXF TruBend) sono parcheggiate. L'API in `unfold.__all__` è stabile; vedi
+> DXF TruBend) sono parcheggiate. L'API in `bendly.__all__` è stabile; vedi
 > `docs/API.md` e `docs/ARCHITECTURE.md`.
 >
 > **Tutti i diritti riservati — nessuna licenza concessa.** Questo repo è
@@ -24,7 +20,7 @@ neutro + i valori calcolati). Niente DXF, niente forge. Solo `.to_dxf()` tocca
 [dxf-forge](../dxf-forge), e solo se lo chiami tu.
 
 ```python
-from unfold import Cone, Cylinder
+from bendly import Cone, Cylinder
 
 flat = Cone(top_diameter=1600, bottom_diameter=1016, height=1000, thickness=5).develop()
 flat.to_dxf("cone.dxf")
@@ -79,7 +75,7 @@ fisso dichiarato (1 mm) e il `K` lo stima DIN 6935 da `r/s` (`MAP.md` D36).
 travestita da dato reale.
 
 ```python
-from unfold import Bend, BentProfile
+from bendly import Bend, BentProfile
 
 flat = BentProfile(
     flanges=[50, 80, 50],                       # lunghezze a mezzeria
@@ -109,7 +105,7 @@ coincidono per coincidenza; per ogni altro angolo passa `180 − angolo_incluso`
 ### Il layer umano — quote esterno-esterno
 
 ```python
-from unfold import Bend, develop_from_external_flanges
+from bendly import Bend, develop_from_external_flanges
 
 flat = develop_from_external_flanges(
     external_flanges=[100, 110],                 # lette sull'esterno del pezzo
@@ -125,7 +121,7 @@ flat = develop_from_external_flanges(
 90/270). Dà sia lo sviluppo piatto sia il disegno del pezzo *piegato*.
 
 ```python
-from unfold import Section
+from bendly import Section
 
 sec = Section.from_external_flanges(
     shape="Z", external_flanges=[80, 40, 80], angles=[90, 270], thickness=3,
@@ -141,7 +137,7 @@ flat = sec.to_bent_profile(width=300, calibration="din6935").develop()
 ### L'export a livelli — un solo DXF, impilato in verticale
 
 ```python
-from unfold import Section, export_part
+from bendly import Section, export_part
 
 sec = Section.from_external_flanges(
     shape="L", external_flanges=[100, 110], angles=[90], thickness=3,
@@ -162,7 +158,7 @@ D36/D39) — una calibrazione dichiara da sé quale dei quattro è col campo
 `tipo_cliente`, verificato contro il suo contenuto reale da
 `tipo_cliente_coerente()`:
 
-| `tipo_cliente` | Sei... | Dai a `unfold`... | Calibrazione |
+| `tipo_cliente` | Sei... | Dai a `bendly`... | Calibrazione |
 |---|---|---|---|
 | `zero_config` | uno sconosciuto che l'ha appena scaricato, non legge nulla | niente | `default` (o omessa) — raggio fisso 1 mm, `K` stimato DIN |
 | `cava_propria` | un'officina con le tue cave ma senza CAM | solo la tabella spessore→cava (5 minuti, mai una misura) | copia `calibrations/esempio_din_3cave.json`, ci metti le tue cave vere |
@@ -172,7 +168,7 @@ D36/D39) — una calibrazione dichiara da sé quale dei quattro è col campo
 ## Il contratto neutro con forge
 
 `FlatGeometry.entities` è nello stesso schema accettato da
-`forge.load_geometry()` — è il contratto neutro fra i due progetti. `unfold` non
+`forge.load_geometry()` — è il contratto neutro fra i due progetti. `bendly` non
 importa mai forge per il calcolo; forge serve solo a `to_dxf()`. Se non vuoi
 passare da `to_dxf()`, consuma `.entities` / `.meta` / `.bends` direttamente.
 

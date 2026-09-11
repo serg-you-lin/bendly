@@ -8,7 +8,7 @@ import math
 import unittest
 from pathlib import Path
 
-from unfold.rules.deduction import (
+from bendly.rules.deduction import (
     Calibration,
     bend_deduction,
     deduction_din6935,
@@ -21,7 +21,7 @@ from unfold.rules.deduction import (
     external_flanges_to_centerline,
     tipo_cliente_coerente,
 )
-from unfold.core.bend import Bend, BentProfile, estimate_k_factor
+from bendly.core.bend import Bend, BentProfile, estimate_k_factor
 
 
 class TestDIN6935(unittest.TestCase):
@@ -163,7 +163,7 @@ class TestCalibrazioni(unittest.TestCase):
     def test_inside_sum_sviluppo_e_somma_cruda_delle_flange(self):
         # riproduce il disegno cliente Sviluppo_somma_interni.pdf:
         # staffa 8 mm, una piega a 90°, sviluppo dichiarato 142 + 262 = 404
-        from unfold import Bend, BentProfile
+        from bendly import Bend, BentProfile
         flat = BentProfile(
             flanges=[142.0, 262.0], bends=[Bend(angle=90.0)],
             thickness=8.0, width=100.0, calibration="inside_sum",
@@ -240,7 +240,7 @@ class TestExternalToCenterlineFlange(unittest.TestCase):
         indipendente da R (dimostrato algebricamente: il termine in R si
         elide, MAP.md D28), quindi le due strade devono tornare identiche.
         """
-        from unfold.rules.deduction import deduction_din6935
+        from bendly.rules.deduction import deduction_din6935
 
         thickness = 3.0
         angle = 90.0

@@ -12,7 +12,7 @@ Richiede forge installato a fianco per il DXF: pip install -e ../dxf-forge
 
 from pathlib import Path
 
-from unfold import Bend, develop_from_external_flanges
+from bendly import Bend, develop_from_external_flanges
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 

@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from unfold.model.section import Section
+from bendly.model.section import Section
 
 # same centerline segments and angles as the real TruBend DXF in
 # data_4_cloude/<SHAPE>/ and as the FORME dict in

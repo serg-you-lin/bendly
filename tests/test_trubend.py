@@ -14,7 +14,7 @@ _ha_dati = os.path.isdir(DATI) and bool(glob.glob(f"{DATI}/**/*.bnc", recursive=
 class TestLettoreBnc(unittest.TestCase):
 
     def test_legge_campi_essenziali(self):
-        from unfold.adapters.trubend import leggi_bnc
+        from bendly.adapters.trubend import leggi_bnc
         for path in glob.glob(f"{DATI}/**/*.bnc", recursive=True):
             with self.subTest(file=os.path.basename(path)):
                 r = leggi_bnc(path)
@@ -28,7 +28,7 @@ class TestLettoreBnc(unittest.TestCase):
     def test_accorciamento_piu_quote_esterne_da_lo_sviluppo(self):
         # verifica la relazione interna al .bnc: per una L,
         #   quota_esterna_a + quota_esterna_b - accorciamento = sviluppo
-        from unfold.adapters.trubend import leggi_bnc
+        from bendly.adapters.trubend import leggi_bnc
         r = leggi_bnc(f"{DATI}/L/L3.bnc")
         acc = r.pieghe[0].accorciamento_esterno
         # L3: a = b = 114 a mezzeria, spessore 3 -> quota esterna 115.5

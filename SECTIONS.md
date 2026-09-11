@@ -24,7 +24,7 @@ esterne di meta' spessore verso l'interno.
 
 ## Come si riconosce "e' lamiera piegata"
 
-Segnale triplo (`unfold/rules/read_section.py`, `read_section`):
+Segnale triplo (`bendly/rules/read_section.py`, `read_section`):
 
 - le facce sono sempre **parallele a distanza costante** -> spessore candidato;
 - quello spessore e' una **lamiera che esiste davvero** (`sheet_thicknesses.json`);
@@ -78,7 +78,7 @@ per i test con `forge.load_geometry` senza passare da un file). Una
 sezione per forma x spessore (1, 3, 10): 12 in totale, meno quelle
 geometricamente impossibili.
 
-Il motore e' `unfold/section.py` (`Section`). Combinazioni impossibili
+Il motore e' `bendly/section.py` (`Section`). Combinazioni impossibili
 (segmento piu' corto dei raggi adiacenti) vengono saltate e riportate. Con
 raggio interno 1 mm le 12 sezioni del set golden si generano tutte.
 

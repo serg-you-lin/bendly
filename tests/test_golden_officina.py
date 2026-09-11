@@ -38,7 +38,7 @@ class TestGoldenOfficina1(unittest.TestCase):
     def setUpClass(cls):
         import ezdxf  # noqa
         from reconstruct import is_ninety_degree_name
-        from unfold import Calibration
+        from bendly import Calibration
         cls.calibration = Calibration.load("tipo_misurato")
         cls.files = [
             f for f in sorted(glob.glob(f"{DATI}/[LUZO]/*.dxf"))
@@ -53,7 +53,7 @@ class TestGoldenOfficina1(unittest.TestCase):
         # spessore e apertura V si prendono da lì, sono autorevoli.
         twin = os.path.join(os.path.dirname(path), base + ".bnc")
         if os.path.isfile(twin):
-            from unfold.adapters.trubend import leggi_bnc
+            from bendly.adapters.trubend import leggi_bnc
             b = leggi_bnc(twin)
             cava = b.matrice.apertura_v if b.matrice else None
             return forma, float(b.spessore), cava
@@ -65,7 +65,7 @@ class TestGoldenOfficina1(unittest.TestCase):
     def test_lunghezza_sviluppo(self):
         import ezdxf
         from ezdxf import bbox
-        from unfold import Bend, BentProfile
+        from bendly import Bend, BentProfile
 
         for path in self.files:
             forma, spess, cava = self._caso(path)
@@ -83,7 +83,7 @@ class TestGoldenOfficina1(unittest.TestCase):
 
     def test_posizioni_linee_di_piega(self):
         import ezdxf
-        from unfold import Bend, BentProfile
+        from bendly import Bend, BentProfile
 
         for path in self.files:
             forma, spess, cava = self._caso(path)

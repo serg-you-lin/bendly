@@ -78,10 +78,10 @@ limite e si va avanti (vedi MAP.md D36).
   riallineati a D36 (raggio fisso dichiarato per il caso A, tabella dei
   4 casi A/B/C/D).
 - [x] `docs/ARCHITECTURE.md` — scritto (11 set 2026): il flusso
-  forge→pippo→unfold, cosa riceve/manda pippo da/a `read_section()`,
+  forge→pippo→bendly, cosa riceve/manda pippo da/a `read_section()`,
   i layer e la regola di dipendenza, cosa non è ancora pulito.
 - [x] `docs/API.md` — scritto (11 set 2026), D16 chiusa: una scheda per
-  ognuno dei 24 nomi di `unfold.__all__`, ogni esempio verificato
+  ognuno dei 24 nomi di `bendly.__all__`, ogni esempio verificato
   girando davvero (non solo letto dal sorgente).
 
 ## Dati che arrivano quando arrivano — mai un blocco
@@ -172,7 +172,7 @@ ogni pezzo piccolo e verificabile da solo:
 `load_geometry`+`heal_and_detect`, entrambe verificate funzionanti) ed è
 tornato al loop-walker fatto a mano — non perché rotto, ma perché non
 c'è ancora un consumatore vero (`pippo`) per cui decidere quel
-contratto. `unfold` oggi importa forge SOLO in `io/dxf.py`, come sempre.
+contratto. `bendly` oggi importa forge SOLO in `io/dxf.py`, come sempre.
 Restano dal giro di stanotte: il rilevamento delle coppie di cerchi e
 l'instradamento dell'arco puro (sella) verso `Cylinder`/`Cone`, portati
 sul loop-walker originale — 167/167 verdi. Storico delle fasi valutate:
@@ -186,7 +186,7 @@ sul loop-walker originale — 167/167 verdi. Storico delle fasi valutate:
   Fatto: `forge.load_geometry()` costruisce il `ForgeDocument`,
   `build_node_graph()`+`LoopFinder()` camminano il loop chiuso già
   ordinato. **Ritrattato lo stesso giorno** (vedi sotto): tornato al
-  loop-walker fatto a mano, `unfold` non importa più forge da
+  loop-walker fatto a mano, `bendly` non importa più forge da
   `rules/read_section.py`. Sopravvive il risultato buono: caso arco puro
   (sella, cap→arco→cap, zero flange) riconosciuto, `centerline_segments`/
   `angles` vuoti per quel caso, campi `pure_arc_radius`/
@@ -200,7 +200,7 @@ sul loop-walker originale — 167/167 verdi. Storico delle fasi valutate:
   costruire `Edge` a mano rifarebbe peggio quello che fa già lui.
   `FlatGeometry` non è ridondante con `ForgeDocument`: porta `meta`
   (i numeri leggibili da un piegatore) e `reference_entities` (il
-  margine tratteggiato), roba di dominio `unfold` che `ForgeDocument`
+  margine tratteggiato), roba di dominio `bendly` che `ForgeDocument`
   non ha. D43 resta chiusa alla fase 0-1 sopra.
 
 ## `BentProfile` da un disegno letto — resta da fare, indipendente da D43
@@ -221,19 +221,19 @@ ingresso `read_section()`'s `centerline_segments`/`angles`/
 - [ ] Info di piega (angolo ≠ 90°) nei DXF TruBend — dove sta quando si
   reimporta.
 
-## Futuribili — qui dentro unfold, non un altro progetto (11 set 2026)
+## Futuribili — qui dentro bendly, non un altro progetto (11 set 2026)
 
-Deciso da Federico: senza un pippo anche rudimentale, `unfold` come
+Deciso da Federico: senza un pippo anche rudimentale, `bendly` come
 generatore+lettore è già in uno stato completo per quello che è (173
 test verdi, calibrazione unificata D45, `docs/API.md`/`ARCHITECTURE.md`
 scritti) — non è bloccato in attesa di pippo, pippo è un consumatore a
-parte. Questi tre restano lavoro VERO di `unfold`, non rimandati a un
-altro repo, perché modificano/estendono la geometria che `unfold` stesso
+parte. Questi tre restano lavoro VERO di `bendly`, non rimandati a un
+altro repo, perché modificano/estendono la geometria che `bendly` stesso
 genera — diverso dal caso "foro nella posizione che dice il cliente"
 (quello sì resta di forge/pippo a valle, vedi sotto):
 
 - [ ] **Smussi/raggi ai 4 angoli dello sviluppo** — già prassi
-  d'officina, `unfold` oggi genera sempre spigoli vivi. Sostituisce il
+  d'officina, `bendly` oggi genera sempre spigoli vivi. Sostituisce il
   vecchio bullet "raggio sugli spigoli del contorno esterno" (era
   segnato "non deciso" — ora deciso: qui). Conseguenza diretta: la
   **larghezza netta** della flangia vista dall'alto (quella che si
@@ -242,7 +242,7 @@ genera — diverso dal caso "foro nella posizione che dice il cliente"
 - [ ] **Convertitore da profilo strutturale standard (angolare/U) a
   `Section`** — quando un angolare o un U a catalogo nella misura giusta
   non si trova/non si compra, l'officina lo piega da lamiera invece —
-  stessa forma (L/U) che `unfold` già sa sviluppare. Serve una tabella
+  stessa forma (L/U) che `bendly` già sa sviluppare. Serve una tabella
   dati VERA (dimensioni standard angolari/profilati UNI/EN) prima di
   scrivere il convertitore — non va inventata a memoria (stesso principio
   di "verificare prima di asserire" già in altre note). Nome di lavoro:
@@ -253,7 +253,7 @@ genera — diverso dal caso "foro nella posizione che dice il cliente"
   le posizioni delle linee di piega ma non le espone in `meta` come
   range per-flangia. Senza quello, pippo (o chiunque) non sa DOVE su un
   cut file piazzare una feature con `forge.inject()` — questo è il pezzo
-  che manca perché `unfold` continui a dire "le coordinate", non "la
+  che manca perché `bendly` continui a dire "le coordinate", non "la
   feature" (vedi sotto).
 
 ## Fuori scope (di un altro layer, non "non deciso")
@@ -261,9 +261,9 @@ genera — diverso dal caso "foro nella posizione che dice il cliente"
 - [ ] Fori/altre feature sul pezzo, in posizione decisa dal disegno
   cliente — resta compito di `forge`/pippo a valle
   (`forge.inject()` esiste già per questo). Principio che li separa dai
-  tre sopra: uno smusso d'angolo è `unfold` che completa la SUA propria
+  tre sopra: uno smusso d'angolo è `bendly` che completa la SUA propria
   geometria generata; un foro a una coordinata del cliente è pippo che
-  aggiunge qualcosa che `unfold` non ha motivo di conoscere.
+  aggiunge qualcosa che `bendly` non ha motivo di conoscere.
 - [ ] Traduttore quote INTERNE ↔ mezzeria — proposto e ritirato da
   Federico stesso, resta qui solo perché banale da aggiungere se serve.
 - [x] ~~Reverse engineering pieghe da un DXF cliente senza `.bnc`~~ —

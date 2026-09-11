@@ -33,9 +33,9 @@ Richiede forge installato a fianco: pip install -e ../dxf-forge
 
 from pathlib import Path
 
-from unfold import Cone, Cylinder
-from unfold.io.dxf import write_part_dxf
-from unfold.model.section import Section
+from bendly import Cone, Cylinder
+from bendly.io.dxf import write_part_dxf
+from bendly.model.section import Section
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 

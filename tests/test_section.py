@@ -15,8 +15,8 @@ try:
 except ImportError:
     FORGE_AVAILABLE = False
 
-from unfold import Section
-from unfold.rules.deduction import external_flanges_to_centerline
+from bendly import Section
+from bendly.rules.deduction import external_flanges_to_centerline
 
 
 class TestFromExternalFlanges(unittest.TestCase):
@@ -102,10 +102,10 @@ class TestFlangeQuotes(unittest.TestCase):
         self.assertIsNone(quotes[1].face)
         self.assertAlmostEqual(quotes[1].display_length, 60.0, places=9)
 
-    def test_e_in_unfold_all(self):
-        import unfold
-        self.assertIn("FlangeFace", unfold.__all__)
-        self.assertIn("FlangeQuote", unfold.__all__)
+    def test_e_in_bendly_all(self):
+        import bendly
+        self.assertIn("FlangeFace", bendly.__all__)
+        self.assertIn("FlangeQuote", bendly.__all__)
 
 
 @unittest.skipUnless(FORGE_AVAILABLE, "forge non installato — pip install -e ../dxf-forge")

@@ -68,7 +68,7 @@ identico Bend, zero rischio di sbagliare il segno del conto.
 
 from pathlib import Path
 
-from unfold import Bend, BentProfile
+from bendly import Bend, BentProfile
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 

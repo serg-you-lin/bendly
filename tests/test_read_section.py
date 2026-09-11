@@ -15,9 +15,9 @@ up to that reversal (see `_canonical`).
 import math
 import unittest
 
-from unfold.model.geometry import polar_point
-from unfold.model.section import Section
-from unfold.rules.read_section import SheetThicknessTable, read_section
+from bendly.model.geometry import polar_point
+from bendly.model.section import Section
+from bendly.rules.read_section import SheetThicknessTable, read_section
 
 SHAPES = {
     "L": ([114.0, 114.0], [90.0]),

@@ -1,4 +1,4 @@
-# MAP — decision log di `unfold`
+# MAP — decision log di `bendly`
 
 La **memoria delle decisioni**: cosa è stato deciso e soprattutto *perché*.
 Non è documentazione (quella andrà in `docs/`), non è un log di sessione
@@ -63,14 +63,11 @@ piano/todo/map:
   non beccava più `tipo_misurato.json` dopo il rename D40 — dati veri
   misurati che stavano per finire tracciati. Nessun repo GitHub remoto
   ancora — decisione di Federico, non ancora presa.
-- **Test:** 173 passati + 132 subtest, **tutti verdi** (`python -m pytest -q`,
-  D41 — chiuso il disallineamento con `forge`).
+- **Test:** 192 passati + 132 subtest, **tutti verdi** (`python -m pytest -q`).
 - **Documentazione:** `README.md` (EN) + `README_IT.md` (IT),
-  `COME_FUNZIONA.md`, `TUTORIAL.md` allineati a D36 (raggio fisso
-  dichiarato, `default.json` senza cave indovinate, i quattro casi
-  A/B/C/D). `docs/API.md` e `docs/ARCHITECTURE.md` ancora da scrivere
-  (D16).
-- **API pubblica** (`unfold.__all__`):
+  `COME_FUNZIONA.md`, `TUTORIAL.md`, `docs/API.md`, `docs/ARCHITECTURE.md`
+  — tutti scritti (D16 chiusa).
+- **API pubblica** (`bendly.__all__`):
   `Cone`, `Cylinder`, `FlatGeometry`, `polar_point`, `Bend`, `BendResult`,
   `BentProfile`, `estimate_k_factor`, `MATERIAL_K_FACTORS`, `Calibration`,
   `DeductionInfo`, `bend_deduction`, `k_din6935`, `deduction_din6935`,
@@ -79,7 +76,7 @@ piano/todo/map:
   `SectionReading`, `SheetThicknessTable`, `develop_from_external_flanges`,
   `export_part`, più `__version__`.
 - **Contratto con forge — invariato (D43 provata e ritrattata per intero,
-  11 set 2026):** `unfold` non importa mai forge per il calcolo o per la
+  11 set 2026):** `bendly` non importa mai forge per il calcolo o per la
   lettura di un disegno — solo `io/dxf.py` lo fa, per scrivere, come
   sempre. `rules/interpret.py` ha importato forge per una notte intera
   (fase 1 di D43) e poi è tornato al loop-walker fatto a mano — non
@@ -1038,6 +1035,46 @@ included angle developed three ways — by hand (`Bend(angle=60)`),
 `from_included(120)`, and the common mistake `Bend(angle=120)` — the
 first two match, the third gives a measurably different, silently wrong,
 development length. 6 new tests, **192/192 green**.
+
+---
+
+### D50 — package renamed `unfold` → `bendly` (11 Sep 2026)
+
+Federico's call, following the repo/project rename to "bendly" a few
+turns earlier (GitHub remote `serg-you-lin/bendly`) — this time the
+Python package itself, not just the README title. A clean break (per
+`python-project-setup`'s own rule: no compatibility shim, no old name
+kept importable "just in case"):
+
+- `unfold/` → `bendly/` via `git mv` (history preserved).
+- `pyproject.toml`: `name`, `packages.find.include`, `keywords`.
+- Every `from unfold import ...` / `from unfold.X import ...` across the
+  package, all 13 numbered scripts, and every test file → `from bendly`.
+  Relative imports inside the package (`from ..model...`) untouched —
+  they never named the package. Each module's own docstring header
+  (`unfold/core/bend.py` etc.) → `bendly/...`. Three test method names
+  that embedded "unfold" inside an identifier (`test_e_in_unfold_all`,
+  underscore-bounded so the word-boundary rename missed them) renamed by
+  hand to `test_e_in_bendly_all`.
+- `unfold.egg-info/` (stale, still reporting version 0.1.0 — predates
+  every bump tonight) removed; package uninstalled and reinstalled as
+  `bendly` (`pip install -e .`) — `bendly.__version__` now resolves
+  correctly via `importlib.metadata`.
+- All current-state docs (`README.md`/`README_IT.md`, `docs/API.md`,
+  `docs/ARCHITECTURE.md`, `TUTORIAL.md`, `SCRIPTS.md`, `TODO.md`,
+  `SECTIONS.md`, `COME_FUNZIONA.md`, `PIEGA_IN_ARIA_E_CONIATURA.md`,
+  this file's own "Stato corrente" header) updated to `bendly`.
+
+**What did NOT change, on purpose**: decisions D1-D49 above keep saying
+`unfold` in their own bodies — same policy as D44 (the `read_section`
+rename): they describe what was true when written, not corrected after
+the fact. A path like `unfold/rules/deduction.py` inside an old decision
+is that decision's own historical record, not a live navigation link —
+the file lives at `bendly/rules/deduction.py` now. The local working
+directory (`.../GitHub/unfold_generator`) was also left alone — a
+filesystem path outside git's reach, not part of this rename, not asked
+for. 192/192 green, verified by reinstalling and running the full suite
+against the renamed import, not just editing text.
 
 ## Closed questions (history)
 

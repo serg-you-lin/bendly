@@ -1,4 +1,4 @@
-# TUTORIAL — percorso per imparare (o rimparare) `unfold`
+# TUTORIAL — percorso per imparare (o rimparare) `bendly`
 
 Non è un altro posto per le stesse informazioni (quelle restano dove sono:
 `MAP.md` le decisioni, `TODO.md` il lavoro aperto, `SCRIPTS.md` l'indice
@@ -19,7 +19,7 @@ pubblico) e `docs/ARCHITECTURE.md` (il flusso, i layer) sono scritti — usali
 come riferimento quando questo percorso non basta. Quello che conta restare
 in testa:
 
-- `unfold` calcola, non disegna: ogni `.develop()` ritorna un
+- `bendly` calcola, non disegna: ogni `.develop()` ritorna un
   `FlatGeometry` — dati Python puri (entità + numeri), zero dipendenze.
   Solo `.to_dxf()` tocca forge, e solo se lo chiami tu.
 - Il motore calcola sempre a **mezzeria** (centro spessore), mai a quote
@@ -140,7 +140,7 @@ indipendentemente dalla forma; perché `Bend(angle=120)` e
 
 ## 3. Il pezzo piegato visto come sezione: `Section`
 
-Prima di andare oltre, guarda `SECTIONS.md` e `unfold/model/section.py`
+Prima di andare oltre, guarda `SECTIONS.md` e `bendly/model/section.py`
 (la docstring in cima, non tutto il file): `Section` è il modello che
 porta il VERSO di ogni piega (su/giù, non solo l'angolo) — cosa che
 `BentProfile` deliberatamente non sa (`MAP.md` D1/D23). `tests/

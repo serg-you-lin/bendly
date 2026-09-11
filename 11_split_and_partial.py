@@ -108,6 +108,22 @@ def main() -> None:
     print("\n--- 4. Mezzaluna (sella calandrata R300, 60°) ---")
     print(f"  sector_angle_deg={sella.meta['sector_angle_deg']:.1f}°  width={sella.meta['width']:.2f}")
 
+    # Stessa mezzaluna, ma SFACCETTATA (per chi non ha la calandra) — MAP.md
+    # D46: 60° deve tagliare n_facets su un confine esatto. n_facets=30 sul
+    # giro intero -> 30*60/360 = 5 faccette in questo pezzo, un profilo
+    # riconoscibile ad arco invece di una sola faccetta piatta.
+    sella_faceted = Cylinder(
+        diameter=606.0, height=400, thickness=3.0,
+        sector_angle=60.0, faceted=True, n_facets=30, label="sella_R300_60_sfaccettata",
+    ).develop()
+    sella_faceted.to_dxf(OUTPUT_DIR / "11_mezzaluna_sella_sfaccettata.dxf")
+
+    print("\n--- 4b. Stessa mezzaluna, sfaccettata (30 facce piene -> 5 in questo pezzo) ---")
+    print(f"  n_facets={sella_faceted.meta['n_facets']} (di {sella_faceted.meta['n_facets_full']} piene)  "
+          f"{len(sella_faceted.bends)} pieghe da {sella_faceted.bends[0].angle:.2f}°")
+    print(f"  facet_width={sella_faceted.meta['facet_width']:.3f}  "
+          f"facet_bend_radius={sella_faceted.meta['facet_bend_radius']:.3f}")
+
     # === Bonus: vedere in sezione la metà sfaccettata del punto 2 ==========
     # Una metà sfaccettata è, geometricamente, un profilo a N flange/N-1
     # pieghe — la stessa forma di una L/U/Z. Si costruisce una Section con

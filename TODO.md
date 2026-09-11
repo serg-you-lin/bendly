@@ -3,7 +3,14 @@
 Unico posto per il lavoro aperto. Le decisioni e il perché stanno in
 `MAP.md`; qui non si ripetono, si rimanda con "vedi `MAP.md` D...".
 
-## Fatto stanotte, non ancora in cima al file (MAP.md D45/D46)
+## Fatto stanotte, non ancora in cima al file (MAP.md D45/D46/D47)
+
+- [x] **Angoli di piega nell'header DXF** (MAP.md D47) — `to_dxf(annotate=True)`
+  e `export_part(include_header=True)` scrivevano solo `flat.meta`,
+  `flat.bends` non ci arrivava mai. Ora sì: una riga sola se le pieghe
+  sono tutte uguali (il caso normale per Cone/Cylinder sfaccettati), una
+  riga per piega se sono diverse (BentProfile). Verificato leggendo il
+  testo vero dal DXF generato, non solo stampato — 2 test nuovi, 186/186.
 
 - [x] **`Cone`/`Cylinder` divisibili in pezzi uguali** (`split`, MAP.md
   D46) — soprattutto per lo sfaccettato: due metà saldate quando il

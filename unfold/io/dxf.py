@@ -75,7 +75,7 @@ def to_dxf(
     doc_out = forge.to_dxf(result)
 
     if annotate and flat.meta:
-        _write_meta_block(doc_out, result, flat.label, flat.meta)
+        _write_meta_block(doc_out, result, flat.label, flat.meta, flat.bends)
 
     if show_margin_reference and flat.reference_entities:
         _write_reference_lines(doc_out, flat.reference_entities)
@@ -116,7 +116,7 @@ def write_section_dxf(
     _write_flange_quotes(doc_out, quotes, section.thickness, quote_clearance)
 
     if annotate and flat.meta:
-        _write_meta_block(doc_out, result, flat.label, flat.meta)
+        _write_meta_block(doc_out, result, flat.label, flat.meta, flat.bends)
 
     doc_out.saveas(path)
     return doc_out
@@ -143,7 +143,9 @@ def write_part_dxf(
                            linee/archi disegnati diretti, non passa da
                            forge/heal_and_detect, per non farla scambiare
                            per una seconda parte da tagliare)
-      3. header           (se `include_header`: il blocco note di `flat.meta`)
+      3. header           (se `include_header`: il blocco note di `flat.meta`
+                           + `flat.bends` — gli angoli di piega, una riga
+                           sola se sono tutti uguali)
 
     Ogni livello incluso si piazza sotto al precedente di
     `bbox_height + margin`; tutti allineati a sinistra sullo stesso x0
@@ -175,7 +177,7 @@ def write_part_dxf(
         y_cursor = (sec_bbox[1] + dy) - margin
 
     if include_header and flat.meta:
-        _write_text_lines(doc_out, _meta_lines(flat.label, flat.meta), x0, y_cursor)
+        _write_text_lines(doc_out, _meta_lines(flat.label, flat.meta, flat.bends), x0, y_cursor)
 
     doc_out.saveas(path)
     return doc_out
@@ -277,11 +279,37 @@ def _write_flange_quotes(doc_out, quotes: List["FlangeQuote"], thickness: float,
 # Annotazione — solo testo/linee di riferimento, mai geometria di taglio
 # ---------------------------------------------------------------------------
 
-def _meta_lines(label: str, meta: Dict[str, Any]) -> List[str]:
-    return [label.upper() or "SVILUPPO"] + [
+def _meta_lines(label: str, meta: Dict[str, Any], bends: Optional[List[Any]] = None) -> List[str]:
+    lines = [label.upper() or "SVILUPPO"] + [
         f"{key} = {value:.3f}" if isinstance(value, float) else f"{key} = {value}"
         for key, value in meta.items()
     ]
+    if bends:
+        lines += _bend_lines(bends)
+    return lines
+
+
+def _bend_lines(bends: List[Any]) -> List[str]:
+    """
+    Una riga per piega nell'header — gli stessi numeri che dice
+    `flat.bends[i]` (angolo, cava, regola), quelli che servono per
+    impostare la macchina (MAP.md D45/D46: vale per BentProfile e per
+    Cone/Cylinder sfaccettati, stesso BendResult).
+
+    Se tutte le pieghe sono identiche (poligono regolare — il caso
+    normale per Cone/Cylinder sfaccettati) esce UNA riga con il
+    conteggio, non N righe ripetute uguali.
+    """
+    def _signature(b):
+        return (round(b.angle, 4), b.rule, b.cava, b.k_factor)
+
+    def _describe(b) -> str:
+        cava_txt = f", cava {b.cava:g}" if b.cava is not None else ""
+        return f"{b.angle:.2f} gradi ({b.rule}{cava_txt})"
+
+    if len({_signature(b) for b in bends}) == 1:
+        return [f"{len(bends)} pieghe x {_describe(bends[0])}"]
+    return [f"piega {i + 1}: {_describe(b)}" for i, b in enumerate(bends)]
 
 
 def _write_text_lines(doc_out, lines: List[str], x0: float, y0: float, layer: str = "Notes") -> None:
@@ -300,11 +328,12 @@ def _write_text_lines(doc_out, lines: List[str], x0: float, y0: float, layer: st
         entity.set_placement((x0, y0 - i * 8.0))
 
 
-def _write_meta_block(doc_out, result, label: str, meta: Dict[str, Any]) -> None:
+def _write_meta_block(doc_out, result, label: str, meta: Dict[str, Any],
+                      bends: Optional[List[Any]] = None) -> None:
     bbox = result.clusters[0].outer.bbox if result.clusters else (0.0, 0.0, 0.0, 0.0)
     x0 = bbox[2] + 30.0
     y0 = bbox[3]
-    _write_text_lines(doc_out, _meta_lines(label, meta), x0, y0)
+    _write_text_lines(doc_out, _meta_lines(label, meta, bends), x0, y0)
 
 
 def _write_reference_lines(doc_out, reference_entities: List[Dict[str, Any]]) -> None:

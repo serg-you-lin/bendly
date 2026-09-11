@@ -956,6 +956,30 @@ completi") and it is satisfied by construction, not by adding anything.
 exclusion, faceted facet-count halving, margin still working, indivisible
 split raising), **184/184 green**.
 
+---
+
+### D47 — bend angles in the DXF header (11 Sep 2026)
+
+Federico's ask, after seeing `flat.bends` printed to the console in
+tonight's scripts: it should be in the DXF header too — an operator
+reading the drawing needs the bend angles, not just someone reading
+Python output. `flat.bends` (`BendResult`, populated for `BentProfile`
+and, since D45, for faceted `Cone`/`Cylinder` too) was computed but never
+reached either header path (`to_dxf(annotate=True)`'s note block,
+`export_part(include_header=True)`'s header level, D32) — both only ever
+read `flat.meta`.
+
+`_meta_lines()` now takes `bends` too and appends one line per bend
+(angle, rule, cava) via a new `_bend_lines()` — collapsed to a single
+`"N pieghe x angle gradi (rule)"` line when every bend is identical (the
+regular-polygon case, most of the time for faceted `Cone`/`Cylinder`),
+listed individually (`"piega 1: ...", "piega 2: ...`) when they differ
+(the general `BentProfile` case). Verified on both: a 5-facet faceted arc
+(4 identical bends → one line) and a `BentProfile` with two different
+angles (two distinct lines) — read back from the actual generated DXF
+text entities, not just printed. 184/184 unaffected (no test asserted on
+the old header text).
+
 ## Closed questions (history)
 
 - *Outer, interior, or centerline quotes?* → core at centerline (D1);

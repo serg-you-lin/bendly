@@ -70,6 +70,37 @@ class TestToDxfIntegration(unittest.TestCase):
             texts = list(doc_out.modelspace().query("TEXT"))
             self.assertTrue(any(t.dxf.layer == "Notes" for t in texts))
 
+    def test_header_collapses_identical_facet_bends_to_one_line(self):
+        # MAP.md D47 — poligono regolare, tutte le pieghe uguali: una riga
+        # sola col conteggio, non N righe ripetute.
+        import tempfile
+        from pathlib import Path
+
+        flat = Cylinder(
+            diameter=150, height=500, thickness=2, faceted=True, n_facets=8,
+        ).develop()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "cyl.dxf"
+            doc_out = flat.to_dxf(out)
+            texts = [t.dxf.text for t in doc_out.modelspace().query("TEXT")]
+            self.assertTrue(any(t.startswith("7 pieghe x") for t in texts), texts)
+
+    def test_header_lists_different_bends_separately(self):
+        # MAP.md D47 — pieghe diverse: una riga per piega, non collassate.
+        import tempfile
+        from pathlib import Path
+
+        flat = BentProfile(
+            flanges=[50, 80, 40], bends=[Bend(angle=90), Bend(angle=45)],
+            thickness=2, width=100, calibration="default",
+        ).develop()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "bent.dxf"
+            doc_out = flat.to_dxf(out)
+            texts = [t.dxf.text for t in doc_out.modelspace().query("TEXT")]
+            self.assertIn("piega 1: 90.00 gradi (din6935)", texts)
+            self.assertIn("piega 2: 45.00 gradi (din6935)", texts)
+
 
 if __name__ == "__main__":
     unittest.main()

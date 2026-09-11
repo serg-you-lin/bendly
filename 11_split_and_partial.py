@@ -124,32 +124,41 @@ def main() -> None:
     print(f"  facet_width={sella_faceted.meta['facet_width']:.3f}  "
           f"facet_bend_radius={sella_faceted.meta['facet_bend_radius']:.3f}")
 
-    # === Bonus: vedere in sezione la metà sfaccettata del punto 2 ==========
-    # Una metà sfaccettata è, geometricamente, un profilo a N flange/N-1
-    # pieghe — la stessa forma di una L/U/Z. Si costruisce una Section con
-    # i numeri che Cylinder ha già calcolato:
-    #   - segments: facet_width, ripetuto per ogni faccetta
+    # === Bonus: vedere in sezione QUALUNQUE pezzo sfaccettato ===============
+    # Un pezzo sfaccettato APERTO (metà cilindro, mezzaluna, cono, non
+    # importa il nome) è, geometricamente, un profilo a N flange/N-1
+    # pieghe — la stessa forma di una L/U/Z. Non serve che sia una delle
+    # "shape" con un nome (L/U/Z/O): basta costruire una Section con i
+    # numeri che Cone/Cylinder hanno già calcolato:
+    #   - segments: facet_width (o chord), ripetuto per ogni faccetta
     #   - angles: nella naming scheme (piatto=180), non in convenzione
     #     Bend.angle (rotazione da piatto) — la conversione è 180 - rotazione
     #   - inner_radius: il raggio VERO usato per le pieghe (dalla
     #     calibrazione), non il raggio simbolico 1mm di Section.default()
-    n = half_faceted.meta["n_facets"]
-    chord = half_faceted.meta["facet_width"]
-    rotation = half_faceted.bends[0].angle          # convenzione Bend.angle
-    naming_angle = 180.0 - rotation                 # convenzione Section.angles
-    radius = half_faceted.meta["facet_bend_radius"]
+    def faceted_piece_as_section(flat, thickness: float, shape_name: str) -> Section:
+        n = flat.meta["n_facets"]
+        chord = flat.meta["facet_width"]
+        rotation = flat.bends[0].angle
+        naming_angle = 180.0 - rotation
+        radius = flat.meta["facet_bend_radius"]
+        return Section(
+            shape=shape_name, segments=[chord] * n, angles=[naming_angle] * (n - 1),
+            thickness=thickness, inner_radius=radius,
+        )
 
-    half_as_section = Section(
-        shape="half_cylinder_12", segments=[chord] * n, angles=[naming_angle] * (n - 1),
-        thickness=3.0, inner_radius=radius,
-    )
+    half_as_section = faceted_piece_as_section(half_faceted, 3.0, "half_cylinder_12")
     half_as_section.to_dxf(OUTPUT_DIR / "11_half_faceted_section_view.dxf")
 
-    print("\n--- Bonus: la metà sfaccettata vista in sezione, come per una L ---")
-    print(f"  {n} flange da {chord:.3f}mm, {n - 1} pieghe da {naming_angle:.1f}° "
-          f"(naming scheme), raggio {radius:.3f}mm")
-    for q in half_as_section.flange_quotes():
-        print(f"  flangia {q.index}: {q.display_length:.3f}  [{q.display_kind}]")
+    sella_as_section = faceted_piece_as_section(sella_faceted, 3.0, "sella_R300_60_faceted")
+    sella_as_section.to_dxf(OUTPUT_DIR / "11_mezzaluna_sfaccettata_section_view.dxf")
+
+    for label, sec in (("metà cilindro", half_as_section), ("mezzaluna", sella_as_section)):
+        print(f"\n--- Bonus: la {label} sfaccettata vista in sezione, come per una L ---")
+        n = len(sec.segments)
+        print(f"  {n} flange da {sec.segments[0]:.3f}mm, {n - 1} pieghe da "
+              f"{sec.angles[0]:.1f}° (naming scheme), raggio {sec.inner_radius:.3f}mm")
+        for q in sec.flange_quotes():
+            print(f"  flangia {q.index}: {q.display_length:.3f}  [{q.display_kind}]")
 
     print("\nFile in", OUTPUT_DIR.resolve())
 

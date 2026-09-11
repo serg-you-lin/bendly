@@ -373,7 +373,7 @@ Il contratto neutro fra `unfold` e chiunque a valle — output di ogni
 | metodo | ritorna | richiede |
 |---|---|---|
 | `.to_forge_result(tolerance=0.05)` | `ForgeResult` di forge | forge installato |
-| `.to_dxf(path, tolerance=0.05, annotate=True, show_margin_reference=False)` | scrive un file DXF | forge installato |
+| `.to_dxf(path, tolerance=0.05, annotate=True, show_margin_reference=False)` | scrive un file DXF (con `annotate=True`, il blocco note include anche `.bends`, MAP.md D47) | forge installato |
 
 **Raises**: `ImportError` da entrambi i metodi se forge non è
 installato (messaggio esplicito, `pip install -e <path a dxf-forge>`).
@@ -431,9 +431,10 @@ export_part(
 
 Esporta un pezzo su un unico file DXF a livelli impilati in verticale:
 taglio (sempre) + vista in sezione quotata (`include_section=True`) +
-header con i valori di `meta` (`include_header=True`). **Mutates**:
-scrive `path` su disco. **Raises**: richiede forge installato (via
-`io.dxf.write_part_dxf`); propaga le eccezioni di
+header con i valori di `meta` **e gli angoli di piega** (`flat.bends`,
+una riga sola se sono tutti uguali — MAP.md D47) se `include_header=True`.
+**Mutates**: scrive `path` su disco. **Raises**: richiede forge
+installato (via `io.dxf.write_part_dxf`); propaga le eccezioni di
 `section.to_bent_profile(width, calibration).develop()`.
 
 ```python

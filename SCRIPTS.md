@@ -21,6 +21,7 @@ Quelli che generano il DXF richiedono forge installato a fianco
 | `08_human_layer.py` | `develop_from_external_flanges()` | l'API pubblica di Fase 3.2 (MAP.md D30): stessa L 100×110s3, ma senza vedere la mezzeria — quote esterne + `Bend` dentro, `FlatGeometry` fuori |
 | `09_section_view.py` | `Section.from_external_flanges()`, `flange_quotes()`, `to_dxf()` | vista in sezione del pezzo PIEGATO con le quote marcate (Fase 3.3/3.4, MAP.md D31): L 100×110s3 (quote tutte esterne) e una Z (l'anima esce dichiarata "a mezzeria", nessuna faccia esterna coerente) |
 | `10_export_part.py` | `export_part()` | export a livelli impilati in verticale (MAP.md D32): stessa L 100×110s3, un file solo taglio e uno taglio+sezione quotata+header, per vedere lo stacking |
+| `11_split_and_partial.py` | `Cone`/`Cylinder` — `split`, `sector_angle`, `calibration` | cono/cilindro divisi in pezzi uguali saldati (`split=2`, liscio e sfaccettato — MAP.md D46), una mezzaluna a settore libero (sella calandrata, MAP.md D42), e il raggio/K sfaccettato dalla calibrazione dell'officina (MAP.md D45). Bonus: la metà sfaccettata vista in sezione quotata con `Section`, come una L |
 
 ## Generatori — non sono script di esplorazione
 

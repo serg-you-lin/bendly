@@ -1,0 +1,142 @@
+"""
+11_split_and_partial.py
+-------------------------
+MAP.md D46: cono/cilindro sviluppati in pezzi uguali (`split`/`sector_angle`)
+— tipicamente due metà saldate insieme quando il pezzo è troppo grande per
+una lavorazione sola, liscio o sfaccettato. E il caso "mezzaluna" di MAP.md
+D42 (`sector_angle` libero, non necessariamente una frazione esatta del
+giro): una lamiera calandrata su un raggio ma tagliata prima di richiudersi
+— una sella, non un tubo.
+
+Quattro pezzi:
+  1. Cilindro liscio diviso in due metà (split=2) — margine di saldatura sui
+     due bordi di CIASCUNA metà, stesso parametro `margin` di sempre.
+  2. Cilindro SFACCETTATO diviso in due (split=2) — prima di stanotte non si
+     poteva fare (MAP.md D42 lo lasciava esplicitamente "non deciso").
+     `flat.bends` porta una BendResult per giunto, come per BentProfile.
+  3. Cono liscio e sfaccettato divisi in due — stessa idea, ma qui "pieno"
+     non è 360 a scelta: è il valore che la geometria del cono impone
+     (`meta["full_angle_deg"]`).
+  4. Una mezzaluna: settore libero (non un `split`) di un cilindro liscio,
+     es. una sella R300/60°.
+
+Bonus, alla fine: la metà sfaccettata del punto 2 è — geometricamente — la
+STESSA cosa di un profilo piegato a N flange (N facce, N-1 pieghe): la si
+può quindi "vedere in sezione", quotata, esattamente come si fa per una L
+(09_section_view.py) — costruendo una `Section` dai numeri che il cilindro
+stesso ha già calcolato (corda, angolo di piega, raggio VERO usato).
+
+Richiede forge installato a fianco: pip install -e ../dxf-forge
+"""
+
+from pathlib import Path
+
+from unfold import Cone, Cylinder
+from unfold.model.section import Section
+
+OUTPUT_DIR = Path(__file__).resolve().parent / "output"
+
+
+def main() -> None:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # === 1. Cilindro liscio diviso in due metà =============================
+    full_smooth = Cylinder(diameter=600, height=800, thickness=3).develop()
+    half_smooth = Cylinder(
+        diameter=600, height=800, thickness=3, split=2, margin=3, label="cyl_half_smooth",
+    ).develop()
+    half_smooth.to_dxf(OUTPUT_DIR / "11_cylinder_half_smooth.dxf", show_margin_reference=True)
+
+    print("--- 1. Cilindro liscio, split=2 ---")
+    print(f"  intero:  width={full_smooth.meta['width']:.2f}")
+    print(f"  metà:    width={half_smooth.meta['width']:.2f} "
+          f"(atteso: metà dell'intero) width_cut={half_smooth.meta['width_cut']:.2f} (con 3mm di margine)")
+
+    # === 2. Cilindro SFACCETTATO diviso in due metà =========================
+    full_faceted = Cylinder(
+        diameter=600, height=800, thickness=3, faceted=True, n_facets=12,
+    ).develop()
+    half_faceted = Cylinder(
+        diameter=600, height=800, thickness=3, faceted=True, n_facets=12,
+        split=2, margin=3, label="cyl_half_faceted",
+    ).develop()
+    half_faceted.to_dxf(OUTPUT_DIR / "11_cylinder_half_faceted.dxf", show_margin_reference=True)
+
+    print("\n--- 2. Cilindro sfaccettato (12 facce), split=2 ---")
+    print(f"  intero:  {full_faceted.meta['n_facets']} facce, {len(full_faceted.bends)} pieghe")
+    print(f"  metà:    {half_faceted.meta['n_facets']} facce (atteso: metà, 6), "
+          f"{len(half_faceted.bends)} pieghe")
+    print(f"  faccetta e raggio di piega identici fra intero e metà "
+          f"(proprietà del poligono, non di quanto ne prendi):")
+    print(f"    facet_width  intero={full_faceted.meta['facet_width']:.3f}  "
+          f"metà={half_faceted.meta['facet_width']:.3f}")
+    print(f"    facet_bend_radius intero={full_faceted.meta['facet_bend_radius']:.3f}  "
+          f"metà={half_faceted.meta['facet_bend_radius']:.3f}")
+    for b in half_faceted.bends:
+        print(f"    piega: angolo={b.angle:.2f}°  regola={b.rule}  {b.source}")
+
+    # === 3. Cono liscio e sfaccettato divisi in due =========================
+    cone_full = Cone(top_diameter=1600, bottom_diameter=1016, height=1000, thickness=5).develop()
+    cone_half = Cone(
+        top_diameter=1600, bottom_diameter=1016, height=1000, thickness=5,
+        split=2, margin=5, label="cone_half_smooth",
+    ).develop()
+    cone_half.to_dxf(OUTPUT_DIR / "11_cone_half_smooth.dxf", show_margin_reference=True)
+
+    cone_half_faceted = Cone(
+        top_diameter=1600, bottom_diameter=1016, height=1000, thickness=5,
+        faceted=True, n_facets=10, split=2, label="cone_half_faceted",
+    ).develop()
+    cone_half_faceted.to_dxf(OUTPUT_DIR / "11_cone_half_faceted.dxf")
+
+    print("\n--- 3. Cono liscio e sfaccettato, split=2 ---")
+    print(f"  sviluppo naturale del cono: full_angle_deg={cone_full.meta['full_angle_deg']:.2f}°")
+    print(f"  metà liscia: sector_angle_deg={cone_half.meta['sector_angle_deg']:.2f}° "
+          f"(atteso: metà di full_angle_deg)")
+    print(f"  metà sfaccettata (10 facce piene): "
+          f"{cone_half_faceted.meta['n_facets']} facce (atteso: 5)")
+
+    # === 4. Mezzaluna: settore libero, non un N-esimo del giro ==============
+    # Sella calandrata: raggio medio 300, arco 60°, spessore 3 — MAP.md D42.
+    # Non è "1/split del giro": è un angolo scelto perché lì taglia il
+    # pezzo, non perché divide il tubo in pezzi uguali.
+    sella = Cylinder(
+        diameter=606.0, height=400, thickness=3.0, sector_angle=60.0, label="sella_R300_60",
+    ).develop()
+    sella.to_dxf(OUTPUT_DIR / "11_mezzaluna_sella.dxf")
+
+    print("\n--- 4. Mezzaluna (sella calandrata R300, 60°) ---")
+    print(f"  sector_angle_deg={sella.meta['sector_angle_deg']:.1f}°  width={sella.meta['width']:.2f}")
+
+    # === Bonus: vedere in sezione la metà sfaccettata del punto 2 ==========
+    # Una metà sfaccettata è, geometricamente, un profilo a N flange/N-1
+    # pieghe — la stessa forma di una L/U/Z. Si costruisce una Section con
+    # i numeri che Cylinder ha già calcolato:
+    #   - segments: facet_width, ripetuto per ogni faccetta
+    #   - angles: nella naming scheme (piatto=180), non in convenzione
+    #     Bend.angle (rotazione da piatto) — la conversione è 180 - rotazione
+    #   - inner_radius: il raggio VERO usato per le pieghe (dalla
+    #     calibrazione), non il raggio simbolico 1mm di Section.default()
+    n = half_faceted.meta["n_facets"]
+    chord = half_faceted.meta["facet_width"]
+    rotation = half_faceted.bends[0].angle          # convenzione Bend.angle
+    naming_angle = 180.0 - rotation                 # convenzione Section.angles
+    radius = half_faceted.meta["facet_bend_radius"]
+
+    half_as_section = Section(
+        shape="half_cylinder_12", segments=[chord] * n, angles=[naming_angle] * (n - 1),
+        thickness=3.0, inner_radius=radius,
+    )
+    half_as_section.to_dxf(OUTPUT_DIR / "11_half_faceted_section_view.dxf")
+
+    print("\n--- Bonus: la metà sfaccettata vista in sezione, come per una L ---")
+    print(f"  {n} flange da {chord:.3f}mm, {n - 1} pieghe da {naming_angle:.1f}° "
+          f"(naming scheme), raggio {radius:.3f}mm")
+    for q in half_as_section.flange_quotes():
+        print(f"  flangia {q.index}: {q.display_length:.3f}  [{q.display_kind}]")
+
+    print("\nFile in", OUTPUT_DIR.resolve())
+
+
+if __name__ == "__main__":
+    main()

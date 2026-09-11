@@ -14,9 +14,10 @@ rifarli girare per vedere cosa cambia.
 
 Leggi `README.md` (inglese) o `README_IT.md` (italiano, stesso contenuto):
 ora copre tutta l'API — `Cone`/`Cylinder`, `Bend`/`BentProfile`, `Section`,
-il layer umano, `export_part`. Restano da scrivere `docs/API.md` e
-`docs/ARCHITECTURE.md` (vedi `MAP.md` D16). Quello che conta restare in
-testa:
+il layer umano, `export_part`. `docs/API.md` (una scheda per nome
+pubblico) e `docs/ARCHITECTURE.md` (il flusso, i layer) sono scritti — usali
+come riferimento quando questo percorso non basta. Quello che conta restare
+in testa:
 
 - `unfold` calcola, non disegna: ogni `.develop()` ritorna un
   `FlatGeometry` — dati Python puri (entità + numeri), zero dipendenze.
@@ -43,9 +44,30 @@ testa:
 - `03_margin_orientation.py` — i due parametri di layout: `orientation`
   (quale asse è il lato lungo del foglio) e `margin` (saldatura tolta in
   parti uguali).
+- `11_split_and_partial.py` — due cose diverse, non confonderle:
+  `split`/`sector_angle` (MAP.md D46) per dividere il pezzo in N parti
+  UGUALI saldate insieme (`split=2` = due metà, liscio o **sfaccettato** —
+  prima di stanotte lo sfaccettato parziale era esplicitamente "non
+  deciso"); un `sector_angle` libero (MAP.md D42) per una "mezzaluna" —
+  una sella calandrata tagliata a un angolo scelto, non una frazione del
+  giro. `margin` (la giunzione a saldatura) funziona identico sui pezzi
+  interi e su quelli divisi — stesso parametro, zero cose nuove da
+  imparare lì. Lo script chiude mostrando che una metà sfaccettata è, in
+  sezione, la stessa cosa di un profilo a N flange — la si vede quotata
+  con `Section`, esattamente come una L (tappa 5 più avanti).
+
+Per lo sfaccettato di `Cone`/`Cylinder` (liscio o diviso): il raggio e il
+`K` di ogni giunto vengono dalla **calibrazione** dell'officina (MAP.md
+D45) — stessa scaletta della tappa 2 qui sotto, non un sistema a parte.
+`facet_bend_radius`/`facet_k_factor` restano override espliciti se serve
+forzare un valore diverso da quello della calibrazione. `flat.bends`
+porta una `BendResult` per faccetta — come per `BentProfile`, dice
+all'operatore come impostare la macchina.
 
 **Cosa dovresti saper rispondere alla fine**: perché i diametri sono
-esterni e cosa cambia se il tuo cliente li dà interni.
+esterni e cosa cambia se il tuo cliente li dà interni; perché `split=2` e
+un `sector_angle` a mano danno lo stesso risultato per il cilindro ma non
+per il cono.
 
 ## 2. Profili piegati a pressopiega: `Bend`, `BentProfile`
 

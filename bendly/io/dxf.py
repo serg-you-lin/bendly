@@ -155,7 +155,16 @@ def write_part_dxf(
     import forge
 
     result = to_forge_result(flat, tolerance=tolerance)
-    doc_out = forge.to_dxf(result)
+    # Verde SCURO per il layer "SectionView", deliberatamente diverso dal
+    # verde di OuterContour (color 3, la sagoma da tagliare): la vista in
+    # sezione è solo riferimento, non va scambiata per la parte vera.
+    # RoleStyle (forge D37) fa creare/colorare il layer a forge.to_dxf()
+    # stesso — non serve più farlo a mano dopo su doc_out.
+    role_styles = (
+        {"SectionView": forge.RoleStyle(color=(0, 100, 0))}
+        if section_flat is not None else None
+    )
+    doc_out = forge.to_dxf(result, role_styles=role_styles)
 
     cut_bbox = result.clusters[0].outer.bbox if result.clusters else (0.0, 0.0, 0.0, 0.0)
     x0 = cut_bbox[0]
@@ -212,15 +221,12 @@ def _write_section_view_entities(doc_out, entities: List[Dict[str, Any]], dx: fl
     facesse, verrebbe rilevata come una seconda parte da tagliare, che non
     è (stesso principio di `_write_reference_lines`, qui su un layer
     pieno invece che tratteggiato perché non è un fantasma del foglio ma
-    un disegno vero da leggere)."""
-    msp = doc_out.modelspace()
-    if layer not in doc_out.layers:
-        # verde SCURO, deliberatamente diverso dal verde di OuterContour
-        # (color 3, la sagoma da tagliare): la vista in sezione è solo
-        # riferimento, non va scambiata per la parte vera.
-        section_layer = doc_out.layers.new(layer, dxfattribs={"color": 3})
-        section_layer.rgb = (0, 100, 0)
+    un disegno vero da leggere).
 
+    Il layer (verde scuro) è già creato e colorato da `forge.to_dxf()`
+    via `role_styles` (vedi `write_part_dxf`) — qui si scrive solo la
+    geometria."""
+    msp = doc_out.modelspace()
     attribs = {"layer": layer}
     for entity in entities:
         kind = entity.get("type")
